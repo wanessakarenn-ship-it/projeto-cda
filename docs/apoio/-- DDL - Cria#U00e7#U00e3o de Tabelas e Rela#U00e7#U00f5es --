@@ -1,0 +1,227 @@
+-- 00. FUNÇÃO BÁSICA PARA ATUALIZAÇÃO AUTOMÁTICA DE TIMESTAMP
+CREATE OR REPLACE FUNCTION public.set_updated_at()
+RETURNS trigger
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    NEW.updated_at = now();
+    RETURN NEW;
+END;
+$$;
+
+-- 1. PERFIL
+CREATE TABLE public.perfil (
+    id BIGSERIAL NOT NULL,
+    nome character varying NOT NULL UNIQUE, -- Admin, Gestor, Colaborador
+    descricao text,
+    created_at timestamp with time zone NOT NULL DEFAULT now(),
+    updated_at timestamp with time zone NOT NULL DEFAULT now(),
+    CONSTRAINT perfil_pkey PRIMARY KEY (id)
+);
+CREATE TRIGGER trg_perfil_updated_at BEFORE UPDATE ON public.perfil FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+-- 2. CARGO
+CREATE TABLE public.cargo (
+    id BIGSERIAL NOT NULL,
+    titulo character varying NOT NULL UNIQUE,
+    descricao text,
+    created_at timestamp with time zone NOT NULL DEFAULT now(),
+    updated_at timestamp with time zone NOT NULL DEFAULT now(),
+    CONSTRAINT cargo_pkey PRIMARY KEY (id)
+);
+CREATE TRIGGER trg_cargo_updated_at BEFORE UPDATE ON public.cargo FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+-- 3. USUARIO
+CREATE TABLE public.usuario (
+    id BIGSERIAL NOT NULL,
+    email character varying NOT NULL UNIQUE,
+    nome character varying,
+    senha text, -- Campo simplificado para o MVP
+    perfil_id BIGINT NOT NULL,
+    created_at timestamp with time zone NOT NULL DEFAULT now(),
+    updated_at timestamp with time zone NOT NULL DEFAULT now(),
+    CONSTRAINT usuario_pkey PRIMARY KEY (id),
+    CONSTRAINT usuario_perfil_id_fkey FOREIGN KEY (perfil_id) REFERENCES public.perfil(id)
+);
+CREATE TRIGGER trg_usuario_updated_at BEFORE UPDATE ON public.usuario FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+-- 4. COLABORADOR
+CREATE TABLE public.colaborador (
+    id BIGSERIAL NOT NULL,
+    usuario_id BIGINT UNIQUE,
+    nome character varying NOT NULL,
+    cargo_id BIGINT,
+    gestor_id BIGINT, -- FK Recursiva
+    matricula character varying UNIQUE NOT NULL,
+    ativo boolean DEFAULT true,
+    created_at timestamp with time zone NOT NULL DEFAULT now(),
+    updated_at timestamp with time zone NOT NULL DEFAULT now(),
+    CONSTRAINT colaborador_pkey PRIMARY KEY (id),
+    CONSTRAINT colab_usuario_fkey FOREIGN KEY (usuario_id) REFERENCES public.usuario(id) ON DELETE SET NULL,
+    CONSTRAINT colab_cargo_fkey FOREIGN KEY (cargo_id) REFERENCES public.cargo(id) ON DELETE SET NULL,
+    CONSTRAINT colab_gestor_fkey FOREIGN KEY (gestor_id) REFERENCES public.colaborador(id) ON DELETE SET NULL
+);
+CREATE INDEX idx_colaborador_gestor ON public.colaborador (gestor_id);
+CREATE TRIGGER trg_colaborador_updated_at BEFORE UPDATE ON public.colaborador FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+-- 5. CICLO_DESEMPENHO
+CREATE TABLE public.ciclo_desempenho (
+    id BIGSERIAL NOT NULL,
+    nome character varying NOT NULL UNIQUE,
+    data_inicio date NOT NULL,
+    data_fim date NOT NULL,
+    descricao text,
+    criado_por BIGINT,
+    created_at timestamp with time zone NOT NULL DEFAULT now(),
+    updated_at timestamp with time zone NOT NULL DEFAULT now(),
+    CONSTRAINT ciclo_pkey PRIMARY KEY (id),
+    CONSTRAINT ciclo_criador_fkey FOREIGN KEY (criado_por) REFERENCES public.usuario(id)
+);
+CREATE TRIGGER trg_ciclo_updated_at BEFORE UPDATE ON public.ciclo_desempenho FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+-- 6. CICLO_COLABORADOR (N:M)
+CREATE TABLE public.ciclo_colaborador (
+    id BIGSERIAL NOT NULL,
+    ciclo_id BIGINT NOT NULL,
+    colaborador_id BIGINT NOT NULL,
+    recomendacao_experiencia text,
+    status_experiencia character varying,
+    created_at timestamp with time zone NOT NULL DEFAULT now(),
+    updated_at timestamp with time zone NOT NULL DEFAULT now(),
+    CONSTRAINT ciclo_colab_pkey PRIMARY KEY (id),
+    CONSTRAINT cc_ciclo_fkey FOREIGN KEY (ciclo_id) REFERENCES public.ciclo_desempenho(id) ON DELETE CASCADE,
+    CONSTRAINT cc_colab_fkey FOREIGN KEY (colaborador_id) REFERENCES public.colaborador(id) ON DELETE CASCADE,
+    UNIQUE (ciclo_id, colaborador_id)
+);
+CREATE TRIGGER trg_ciclo_colab_updated_at BEFORE UPDATE ON public.ciclo_colaborador FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+-- 7. COMPETENCIA
+CREATE TABLE public.competencia (
+    id BIGSERIAL NOT NULL,
+    nome character varying NOT NULL UNIQUE,
+    descricao text,
+    categoria character varying DEFAULT 'Geral', -- 'Geral' ou 'Específica'
+    peso numeric NOT NULL DEFAULT 1,
+    created_at timestamp with time zone NOT NULL DEFAULT now(),
+    updated_at timestamp with time zone NOT NULL DEFAULT now(),
+    CONSTRAINT competencia_pkey PRIMARY KEY (id)
+);
+CREATE TRIGGER trg_competencia_updated_at BEFORE UPDATE ON public.competencia FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+-- 8. META
+CREATE TABLE public.meta (
+    id BIGSERIAL NOT NULL,
+    titulo character varying NOT NULL,
+    descricao text,
+    peso numeric NOT NULL DEFAULT 1,
+    prazo date,
+    created_at timestamp with time zone NOT NULL DEFAULT now(),
+    updated_at timestamp with time zone NOT NULL DEFAULT now(),
+    CONSTRAINT meta_pkey PRIMARY KEY (id)
+);
+CREATE TRIGGER trg_meta_updated_at BEFORE UPDATE ON public.meta FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+-- 9. AVALIACAO
+CREATE TABLE public.avaliacao (
+    id BIGSERIAL NOT NULL,
+    ciclo_colaborador_id BIGINT NOT NULL,
+    avaliador_id BIGINT NOT NULL,
+    tipo character varying NOT NULL, -- AUTOAVALIACAO ou GESTOR
+    status character varying NOT NULL, -- PENDENTE, FINALIZADO
+    pontuacao_merito numeric,
+    data_envio timestamp with time zone,
+    comentario text,
+    created_at timestamp with time zone NOT NULL DEFAULT now(),
+    updated_at timestamp with time zone NOT NULL DEFAULT now(),
+    CONSTRAINT avaliacao_pkey PRIMARY KEY (id),
+    CONSTRAINT ava_ciclo_colab_fkey FOREIGN KEY (ciclo_colaborador_id) REFERENCES public.ciclo_colaborador(id) ON DELETE CASCADE,
+    CONSTRAINT ava_avaliador_fkey FOREIGN KEY (avaliador_id) REFERENCES public.colaborador(id) ON DELETE SET NULL,
+    UNIQUE (ciclo_colaborador_id, avaliador_id, tipo)
+);
+CREATE TRIGGER trg_avaliacao_updated_at BEFORE UPDATE ON public.avaliacao FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+-- 10. PONTUACAO (Unificada)
+CREATE TABLE public.pontuacao (
+    id BIGSERIAL NOT NULL,
+    avaliacao_id BIGINT NOT NULL,
+    competencia_id BIGINT,
+    meta_id BIGINT,
+    nota numeric NOT NULL,
+    comentario text,
+    peso_aplicado numeric DEFAULT 1,
+    created_at timestamp with time zone NOT NULL DEFAULT now(),
+    updated_at timestamp with time zone NOT NULL DEFAULT now(),
+    CONSTRAINT pontuacao_pkey PRIMARY KEY (id),
+    CONSTRAINT pont_ava_fkey FOREIGN KEY (avaliacao_id) REFERENCES public.avaliacao(id) ON DELETE CASCADE,
+    CONSTRAINT pont_comp_fkey FOREIGN KEY (competencia_id) REFERENCES public.competencia(id) ON DELETE CASCADE,
+    CONSTRAINT pont_meta_fkey FOREIGN KEY (meta_id) REFERENCES public.meta(id) ON DELETE CASCADE,
+    CONSTRAINT check_item_type CHECK (
+        (competencia_id IS NOT NULL AND meta_id IS NULL) OR 
+        (competencia_id IS NULL AND meta_id IS NOT NULL)
+    ),
+    UNIQUE (avaliacao_id, competencia_id),
+    UNIQUE (avaliacao_id, meta_id)
+);
+CREATE TRIGGER trg_pontuacao_updated_at BEFORE UPDATE ON public.pontuacao FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+-- 11. NINE_BOX
+CREATE TABLE public.nine_box (
+    id BIGSERIAL NOT NULL,
+    ciclo_colaborador_id BIGINT UNIQUE NOT NULL,
+    posicao_x_potencial character varying NOT NULL,
+    posicao_y_desempenho character varying NOT NULL,
+    score_final_merito numeric NOT NULL DEFAULT 0,
+    elegivel_carreira boolean NOT NULL DEFAULT false,
+    data_calculo timestamp with time zone NOT NULL DEFAULT now(),
+    created_at timestamp with time zone NOT NULL DEFAULT now(),
+    updated_at timestamp with time zone NOT NULL DEFAULT now(),
+    CONSTRAINT nine_box_pkey PRIMARY KEY (id),
+    CONSTRAINT nb_cc_fkey FOREIGN KEY (ciclo_colaborador_id) REFERENCES public.ciclo_colaborador(id) ON DELETE CASCADE
+);
+CREATE TRIGGER trg_nine_box_updated_at BEFORE UPDATE ON public.nine_box FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+-- 12. PLANO_CARREIRA
+CREATE TABLE public.plano_carreira (
+    id BIGSERIAL NOT NULL,
+    nome character varying NOT NULL UNIQUE,
+    descricao text,
+    versao character varying,
+    publicado boolean DEFAULT false,
+    created_at timestamp with time zone NOT NULL DEFAULT now(),
+    updated_at timestamp with time zone NOT NULL DEFAULT now(),
+    CONSTRAINT plano_pkey PRIMARY KEY (id)
+);
+CREATE TRIGGER trg_plano_updated_at BEFORE UPDATE ON public.plano_carreira FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+-- 13. COLABORADOR_TRILHA (N:M)
+CREATE TABLE public.colaborador_trilha (
+    id BIGSERIAL NOT NULL,
+    plano_id BIGINT NOT NULL,
+    colaborador_id BIGINT NOT NULL,
+    data_inicio date NOT NULL,
+    data_fim date,
+    status character varying NOT NULL DEFAULT 'LIBERADO',
+    created_at timestamp with time zone NOT NULL DEFAULT now(),
+    updated_at timestamp with time zone NOT NULL DEFAULT now(),
+    CONSTRAINT colab_trilha_pkey PRIMARY KEY (id),
+    CONSTRAINT ct_plano_fkey FOREIGN KEY (plano_id) REFERENCES public.plano_carreira(id) ON DELETE CASCADE,
+    CONSTRAINT ct_colab_fkey FOREIGN KEY (colaborador_id) REFERENCES public.colaborador(id) ON DELETE CASCADE,
+    UNIQUE (plano_id, colaborador_id)
+);
+CREATE TRIGGER trg_colab_trilha_updated_at BEFORE UPDATE ON public.colaborador_trilha FOR EACH ROW EXECUTE FUNCTION public.set_updated_at();
+
+-- 14. COLABORADOR_IMPORT (Staging)
+CREATE TABLE public.colaborador_import (
+    id BIGSERIAL NOT NULL,
+    matricula character varying NOT NULL,
+    nome_completo character varying NOT NULL,
+    email_corporativo character varying NOT NULL,
+    nome_cargo character varying NOT NULL,
+    data_admissao date NOT NULL,
+    matricula_gestor character varying,
+    status_processamento character varying DEFAULT 'PENDENTE',
+    mensagem_erro text,
+    data_registro timestamp with time zone DEFAULT now(),
+    updated_at timestamp with time zone DEFAULT now(),
+    CONSTRAINT import_pkey PRIMARY KEY (id)
+);

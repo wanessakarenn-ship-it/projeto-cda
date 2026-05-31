@@ -1,0 +1,31 @@
+/* =======================================================
+   Animação para preenchimento das barras de competência
+   ======================================================= */
+@keyframes progress-fill {
+  from {
+    width: 0%;
+  }
+  to {
+    width: var(--progress-width);
+  }
+}
+
+/* Classe aplicada diretamente na barra */
+.progress-bar-fill {
+  width: var(--progress-width);
+  animation: progress-fill 1s ease-out forwards;
+}
+
+/* =======================================================
+   Marcador de meta (linha vertical na barra)
+   ======================================================= */
+.target-marker {
+  left: var(--target-position);
+}
+
+/* =======================================================
+   Transições padrão para navegação lateral
+   ======================================================= */
+.nav-item-transition {
+  @apply transition-all duration-200 ease-in-out;
+}

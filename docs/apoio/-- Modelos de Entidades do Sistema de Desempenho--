@@ -1,0 +1,262 @@
+# 🗂️ Modelos de Dados – CDA 2026
+
+Este documento descreve os **modelos de dados da Plataforma de Gestão do Ciclo de Desempenho (CDA 2026)**, organizados por domínio funcional, incluindo finalidade, atributos e restrições.
+
+---
+
+## I. Modelos de Base e Acesso
+
+### Entidade: PERFIL
+
+**Finalidade:**  
+Define os níveis de acesso e permissões do sistema (ex.: Administrador, Gestor, Colaborador).
+
+**Atributos:**
+- `id` (PK)
+- `nome` (Único)
+- `descricao`
+- `created_at`
+- `updated_at`
+
+---
+
+### Entidade: CARGO
+
+**Finalidade:**  
+Padroniza os títulos e descrições das funções existentes na organização.
+
+**Atributos:**
+- `id` (PK)
+- `titulo` (Único)
+- `descricao`
+- `created_at`
+- `updated_at`
+
+---
+
+### Entidade: USUARIO
+
+**Finalidade:**  
+Armazena as credenciais de autenticação e associa o usuário a um perfil de acesso.
+
+**Atributos:**
+- `id` (PK)
+- `email` (Único)
+- `nome`
+- `perfil_id` (FK → `PERFIL.id`)
+- `senha`
+- `created_at`
+- `updated_at`
+
+---
+
+### Entidade: COLABORADOR
+
+**Finalidade:**  
+Entidade central de pessoas no sistema. Relaciona o acesso do usuário ao cargo e à hierarquia organizacional.
+
+**Atributos:**
+- `id` (PK)
+- `usuario_id` (FK → `USUARIO.id`, Único)
+- `nome`
+- `cargo_id` (FK → `CARGO.id`)
+- `gestor_id` (FK recursiva → `COLABORADOR.id`)
+- `matricula` (Única)
+- `ativo`
+- `created_at`
+- `updated_at`
+
+---
+
+### Entidade: COLABORADOR_IMPORT
+
+**Finalidade:**  
+Tabela de *staging* para processamento, validação e auditoria de importações em massa de colaboradores.
+
+**Atributos:**
+- `id` (PK)
+- `matricula`
+- `nome_completo`
+- `email_corporativo`
+- `nome_cargo`
+- `data_admissao`
+- `matricula_gestor`
+- `status_processamento`
+- `mensagem_erro`
+- `data_registro`
+- `updated_at`
+
+---
+
+## II. Modelos de Ciclo e Participação
+
+### Entidade: CICLO_DESEMPENHO
+
+**Finalidade:**  
+Define o período oficial de avaliação de desempenho (ex.: *Ciclo CDA 2026*).
+
+**Atributos:**
+- `id` (PK)
+- `nome` (Único)
+- `data_inicio`
+- `data_fim`
+- `descricao`
+- `criado_por` (FK → `USUARIO.id`)
+- `created_at`
+- `updated_at`
+
+---
+
+### Entidade: CICLO_COLABORADOR
+
+**Finalidade:**  
+Tabela de junção **N:M** que registra a participação de um colaborador em um ciclo específico.
+
+**Atributos:**
+- `id` (PK)
+- `ciclo_id` (FK → `CICLO_DESEMPENHO.id`)
+- `colaborador_id` (FK → `COLABORADOR.id`)
+- `recomendacao_experiencia`
+- `status_experiencia`
+- `created_at`
+- `updated_at`
+
+**Restrição:**
+- `(ciclo_id, colaborador_id)` deve ser **ÚNICO**
+
+---
+
+## III. Modelos de Itens e Avaliação
+
+### Entidade: COMPETENCIA
+
+**Finalidade:**  
+Itens de avaliação focados em comportamentos e habilidades técnicas.
+
+**Atributos:**
+- `id` (PK)
+- `nome` (Único)
+- `descricao`
+- `categoria` (*Geral* | *Específica*)
+- `peso`
+- `created_at`
+- `updated_at`
+
+---
+
+### Entidade: META
+
+**Finalidade:**  
+Itens de avaliação focados em resultados quantitativos (KPIs / OKRs).
+
+**Atributos:**
+- `id` (PK)
+- `titulo`
+- `descricao`
+- `peso`
+- `prazo`
+- `created_at`
+- `updated_at`
+
+---
+
+### Entidade: AVALIACAO
+
+**Finalidade:**  
+Cabeçalho de uma avaliação realizada dentro de um ciclo (ex.: *AUTOAVALIACAO*, *GESTOR*).
+
+**Atributos:**
+- `id` (PK)
+- `ciclo_colaborador_id` (FK → `CICLO_COLABORADOR.id`)
+- `avaliador_id` (FK → `COLABORADOR.id`)
+- `tipo`
+- `status` (*PENDENTE* | *FINALIZADO*)
+- `pontuacao_merito`
+- `data_envio`
+- `comentario`
+- `created_at`
+- `updated_at`
+
+**Restrição:**
+- `(ciclo_colaborador_id, avaliador_id, tipo)` deve ser **ÚNICO**
+
+---
+
+### Entidade: PONTUACAO
+
+**Finalidade:**  
+Registro unificado de notas e feedbacks por competência ou meta.
+
+**Atributos:**
+- `id` (PK)
+- `avaliacao_id` (FK → `AVALIACAO.id`)
+- `competencia_id` (FK opcional → `COMPETENCIA.id`)
+- `meta_id` (FK opcional → `META.id`)
+- `nota`
+- `comentario`
+- `peso_aplicado`
+- `created_at`
+- `updated_at`
+
+**Restrição de Integridade:**
+- É obrigatório preencher **competencia_id OU meta_id**, garantido via `CHECK`.
+
+---
+
+## IV. Modelos de Resultado e Carreira
+
+### Entidade: NINE_BOX
+
+**Finalidade:**  
+Armazena o resultado consolidado do colaborador na matriz de talentos.
+
+**Atributos:**
+- `id` (PK)
+- `ciclo_colaborador_id` (FK Única → `CICLO_COLABORADOR.id`)
+- `posicao_x_potencial`
+- `posicao_y_desempenho`
+- `score_competencias`
+- `score_metas`
+- `score_final_merito`
+- `elegivel_carreira`
+- `data_calculo`
+- `created_at`
+- `updated_at`
+
+---
+
+### Entidade: PLANO_CARREIRA
+
+**Finalidade:**  
+Catálogo de planos de desenvolvimento e trilhas de carreira.
+
+**Atributos:**
+- `id` (PK)
+- `nome` (Único)
+- `descricao`
+- `versao`
+- `publicado`
+- `created_at`
+- `updated_at`
+
+---
+
+### Entidade: COLABORADOR_TRILHA
+
+**Finalidade:**  
+Registra a liberação e o acompanhamento do colaborador em um plano de carreira.
+
+**Atributos:**
+- `id` (PK)
+- `plano_id` (FK → `PLANO_CARREIRA.id`)
+- `colaborador_id` (FK → `COLABORADOR.id`)
+- `data_inicio`
+- `data_fim`
+- `status`
+- `created_at`
+- `updated_at`
+
+**Restrição:**
+- `(plano_id, colaborador_id)` deve ser **ÚNICO**
+
+---

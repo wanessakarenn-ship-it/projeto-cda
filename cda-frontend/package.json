@@ -1,0 +1,31 @@
+{
+  "name": "cda-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "rsbuild dev",
+    "build": "rsbuild build",
+    "preview": "rsbuild preview",
+    "check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "axios": "^1.6.8",
+    "clsx": "^2.1.0",
+    "lucide-react": "^0.300.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.20.0",
+    "tailwind-merge": "^2.2.0"
+  },
+  "devDependencies": {
+    "@rsbuild/core": "^1.1.0",
+    "@rsbuild/plugin-react": "^1.0.1",
+    "@types/react": "^18.3.3",
+    "@types/react-dom": "^18.3.0",
+    "autoprefixer": "^10.4.17",
+    "postcss": "^8.4.35",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5.5.0"
+  }
+}

@@ -1,0 +1,180 @@
+# 🧩 Entidades e Modelo de Dados – CDA 2026
+
+Este documento descreve as **entidades principais do sistema**, suas responsabilidades, relacionamentos e as **decisões lógicas adotadas** no modelo de dados da Plataforma de Gestão do Ciclo de Desempenho (CDA 2026).
+
+---
+
+## 1. Entidades Base e Controle de Acesso
+
+As entidades base sustentam a **governança, autenticação e estrutura organizacional** do sistema.
+
+### PERFIL
+- **Chave Primária:** `id`
+- **Descrição:** Define o nível de acesso ao sistema.
+- **Exemplos:** `Administrador`, `Gestor`, `Colaborador`
+
+📌 Relação:
+- Um **PERFIL** pode estar associado a vários usuários (**1:N**).
+
+---
+
+### USUARIO
+- **Chave Primária:** `id`
+- **Descrição:** Armazena os dados de autenticação e identidade do usuário.
+- **Principais Campos:** `email`, `senha`, `nome`
+- **Chave Estrangeira:** `perfil_id → PERFIL.id`
+
+📌 Relação:
+- Muitos **USUARIOS** pertencem a um **PERFIL** (**N:1**).
+
+---
+
+### CARGO
+- **Chave Primária:** `id`
+- **Descrição:** Padroniza os títulos e descrições das funções na organização.
+- **Exemplos:** Gerente, Analista Sênior, Desenvolvedor Júnior.
+
+---
+
+### COLABORADOR
+- **Chave Primária:** `id`
+- **Descrição:** Representa a pessoa no contexto organizacional e avaliativo.
+- **Chaves Estrangeiras:**
+  - `usuario_id → USUARIO.id` (relação **1:1**)
+  - `cargo_id → CARGO.id`
+  - `gestor_id → COLABORADOR.id` (auto-relacionamento)
+
+📌 Relações:
+- Um **COLABORADOR** possui um único **USUARIO**.
+- Um **COLABORADOR** pode ser gestor de vários colaboradores (**1:N**).
+
+---
+
+## 2. Entidades de Ciclo e Participação
+
+Gerenciam os **períodos avaliativos** e os vínculos de participação.
+
+### CICLO_DESEMPENHO
+- **Chave Primária:** `id`
+- **Descrição:** Define o período de avaliação.
+- **Principais Campos:** `nome`, `data_inicio`, `data_fim`
+- **Chave Estrangeira:** `criado_por → USUARIO.id`
+
+---
+
+### CICLO_COLABORADOR
+- **Chave Primária:** `id`
+- **Descrição:** Tabela de junção que registra a participação do colaborador em um ciclo.
+- **Chaves Estrangeiras:**
+  - `ciclo_id → CICLO_DESEMPENHO.id`
+  - `colaborador_id → COLABORADOR.id`
+- **Atributos Relevantes:**
+  - `recomendacao_experiencia`
+  - `status_experiencia`
+- **Restrição:**  
+  - `UNIQUE (ciclo_id, colaborador_id)`
+
+📌 Relação:
+- Implementa um relacionamento **N:M** entre ciclos e colaboradores.
+
+---
+
+## 3. Entidades de Avaliação e Mérito
+
+Responsáveis pela **coleta, detalhamento e consolidação das avaliações**.
+
+### AVALIACAO
+- **Chave Primária:** `id`
+- **Descrição:** Representa o cabeçalho de uma avaliação.
+- **Tipos:** `AUTOAVALIACAO`, `GESTOR`
+- **Status:** `PENDENTE`, `FINALIZADO`
+- **Chaves Estrangeiras:**
+  - `ciclo_colaborador_id → CICLO_COLABORADOR.id`
+  - `avaliador_id → COLABORADOR.id`
+- **Campo Importante:** `pontuacao_merito` (resultado consolidado da avaliação)
+
+---
+
+### COMPETENCIA
+- **Chave Primária:** `id`
+- **Descrição:** Item avaliativo relacionado a comportamento ou habilidade.
+- **Atributos:**
+  - `categoria` (*Geral* ou *Específica*)
+  - `peso`
+
+---
+
+### META
+- **Chave Primária:** `id`
+- **Descrição:** Item avaliativo orientado a objetivos.
+- **Atributos:** `peso`, `prazo`
+
+---
+
+### PONTUACAO
+- **Chave Primária:** `id`
+- **Descrição:** Registro detalhado da nota atribuída a um item avaliado.
+- **Chave Estrangeira:** `avaliacao_id → AVALIACAO.id`
+- **Chaves Opcionais:**
+  - `competencia_id → COMPETENCIA.id`
+  - `meta_id → META.id`
+- **Restrição de Integridade:**
+  - Apenas **uma** das chaves (`competencia_id` ou `meta_id`) pode ser preenchida por registro.
+
+📌 Decisão Arquitetural:
+- Estrutura **unificada**, eliminando a necessidade de tabelas separadas para metas e competências.
+
+---
+
+## 4. Entidades de Resultado e Progressão
+
+Gerenciam o **resultado final do ciclo** e o **desenvolvimento do colaborador**.
+
+### NINE_BOX
+- **Chave Primária:** `id`
+- **Descrição:** Consolida o resultado final do ciclo.
+- **Campos Principais:**
+  - `posicao_x_potencial`
+  - `posicao_y_desempenho`
+  - `score_final_merito`
+  - `elegivel_carreira`
+- **Chave Estrangeira:** `ciclo_colaborador_id → CICLO_COLABORADOR.id`
+
+---
+
+### PLANO_CARREIRA
+- **Chave Primária:** `id`
+- **Descrição:** Define os planos de desenvolvimento disponíveis.
+
+---
+
+### COLABORADOR_TRILHA
+- **Chave Primária:** `id`
+- **Descrição:** Tabela de junção que registra as trilhas liberadas para o colaborador.
+- **Chaves Estrangeiras:**
+  - `plano_id → PLANO_CARREIRA.id`
+  - `colaborador_id → COLABORADOR.id`
+
+---
+
+## 5. Resumo das Decisões e Correções Lógicas
+
+### ✔ Padronização de Nomenclatura
+- Chaves primárias padronizadas como `id`.
+- Backend em **camelCase** e banco em **snake_case**.
+
+### ✔ Segurança e LGPD
+- Campo `senha_hash` simplificado para `senha` na tabela `USUARIO`,
+  alinhado à nova estratégia de autenticação e criptografia.
+
+### ✔ Unificação de Pontuação
+- Tabela `PONTUACAO` unificada:
+  - Menos redundância
+  - Consultas mais simples
+  - Melhor performance analítica
+
+### ✔ Automação de Elegibilidade
+- Campo `elegivel_carreira` diretamente em `NINE_BOX`,
+  permitindo automação da liberação de trilhas pós-ciclo.
+
+---

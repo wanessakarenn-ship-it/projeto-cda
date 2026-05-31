@@ -1,0 +1,179 @@
+-- ==========================================================
+-- DML COMPLEMENTAR – DADOS ADICIONAIS (CDA 2026)
+-- Executar APÓS o DDL oficial
+-- ==========================================================
+
+
+-- ----------------------------------------------------------
+-- 1. PERFIS E CARGOS ADICIONAIS
+-- ----------------------------------------------------------
+
+INSERT INTO public.perfil (id, nome, descricao) VALUES
+(4, 'Supervisor', 'Perfil intermediário com gestão operacional')
+ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO public.cargo (id, titulo, descricao) VALUES
+(4, 'Supervisor de Vendas', 'Responsável pela supervisão do time de vendas')
+ON CONFLICT (id) DO NOTHING;
+
+SELECT setval(
+  'public.perfil_id_seq',
+  (SELECT COALESCE(MAX(id), 1) FROM public.perfil),
+  true
+);
+
+SELECT setval(
+  'public.cargo_id_seq',
+  (SELECT COALESCE(MAX(id), 1) FROM public.cargo),
+  true
+);
+
+
+-- ----------------------------------------------------------
+-- 2. USUÁRIOS ADICIONAIS
+-- ----------------------------------------------------------
+
+INSERT INTO public.usuario (id, email, nome, perfil_id, senha) VALUES
+(13, 'daniel.evo@empresa.com.br',     'Daniel Evo',     2, 'hash_daniel'),
+(14, 'eliza.lima@empresa.com.br',     'Eliza Lima',     3, 'hash_eliza'),
+(15, 'fernanda.nunes@empresa.com.br', 'Fernanda Nunes', 3, 'hash_fernanda')
+ON CONFLICT (id) DO NOTHING;
+
+SELECT setval(
+  'public.usuario_id_seq',
+  (SELECT COALESCE(MAX(id), 1) FROM public.usuario),
+  true
+);
+
+
+-- ----------------------------------------------------------
+-- 3. COLABORADORES ADICIONAIS
+-- ----------------------------------------------------------
+
+INSERT INTO public.colaborador (id, usuario_id, nome, cargo_id, gestor_id, matricula, ativo) VALUES
+(103, 13, 'Daniel Evo',     4, 100, 'MAT004', TRUE),
+(104, 14, 'Eliza Lima',     3, 100, 'MAT005', TRUE),
+(105, 15, 'Fernanda Nunes', 4, 103, 'MAT006', TRUE)
+ON CONFLICT (id) DO NOTHING;
+
+SELECT setval(
+  'public.colaborador_id_seq',
+  (SELECT COALESCE(MAX(id), 1) FROM public.colaborador),
+  true
+);
+
+
+-- ----------------------------------------------------------
+-- 4. CICLOS DE DESEMPENHO ADICIONAIS
+-- ----------------------------------------------------------
+
+INSERT INTO public.ciclo_desempenho (id, nome, data_inicio, data_fim, descricao, criado_por) VALUES
+(2, 'Ciclo 2024 - H1', '2024-01-01', '2024-06-30', 'Avaliação do primeiro semestre de 2024.', 10),
+(3, 'Ciclo 2026 - Planejamento', '2026-01-01', '2026-12-31', 'Planejamento de metas para o próximo ano.', 10)
+ON CONFLICT (id) DO NOTHING;
+
+SELECT setval(
+  'public.ciclo_desempenho_id_seq',
+  (SELECT COALESCE(MAX(id), 1) FROM public.ciclo_desempenho),
+  true
+);
+
+
+-- ----------------------------------------------------------
+-- 5. COMPETÊNCIAS E METAS
+-- ----------------------------------------------------------
+
+INSERT INTO public.competencia (id, nome, descricao, categoria, peso) VALUES
+(12, 'Adaptabilidade',        'Capacidade de lidar com mudanças.',           'Geral',      0.8),
+(13, 'Liderança Situacional', 'Uso de estilos conforme o contexto.',         'Específica', 1.2)
+ON CONFLICT (id) DO NOTHING;
+
+INSERT INTO public.meta (id, titulo, descricao, peso, prazo) VALUES
+(22, 'Crescimento de Vendas 5%', 'Crescimento mínimo esperado de 5%.', 2.5, '2024-06-30'),
+(23, 'Lançamento de Produto X',  'Lançamento do produto X no mercado.', 1.8, '2026-03-01')
+ON CONFLICT (id) DO NOTHING;
+
+SELECT setval(
+  'public.competencia_id_seq',
+  (SELECT COALESCE(MAX(id), 1) FROM public.competencia),
+  true
+);
+
+SELECT setval(
+  'public.meta_id_seq',
+  (SELECT COALESCE(MAX(id), 1) FROM public.meta),
+  true
+);
+
+
+-- ----------------------------------------------------------
+-- 6. PARTICIPAÇÃO EM CICLOS
+-- ----------------------------------------------------------
+
+INSERT INTO public.ciclo_colaborador (id, ciclo_id, colaborador_id, status_experiencia) VALUES
+(1002, 2, 101, 'FINALIZADO'),
+(1003, 2, 102, 'FINALIZADO'),
+(1004, 2, 103, 'FINALIZADO'),
+(1005, 1, 103, 'EM ANDAMENTO'),
+(1006, 1, 104, 'EM ANDAMENTO'),
+(1007, 1, 105, 'EM ANDAMENTO'),
+(1008, 3, 101, 'PLANEJAMENTO'),
+(1009, 3, 105, 'PLANEJAMENTO')
+ON CONFLICT (id) DO NOTHING;
+
+SELECT setval(
+  'public.ciclo_colaborador_id_seq',
+  (SELECT COALESCE(MAX(id), 1) FROM public.ciclo_colaborador),
+  true
+);
+
+
+-- ----------------------------------------------------------
+-- 7. AVALIAÇÕES FINALIZADAS (CICLO 2024)
+-- ----------------------------------------------------------
+
+INSERT INTO public.avaliacao (id, ciclo_colaborador_id, avaliador_id, tipo, status, data_envio) VALUES
+(202, 1002, 101, 'AUTOAVALIACAO', 'FINALIZADO', '2024-06-20'),
+(203, 1002, 100, 'GESTOR',       'FINALIZADO', '2024-07-05')
+ON CONFLICT (id) DO NOTHING;
+
+SELECT setval(
+  'public.avaliacao_id_seq',
+  (SELECT COALESCE(MAX(id), 1) FROM public.avaliacao),
+  true
+);
+
+
+-- ----------------------------------------------------------
+-- 8. PONTUAÇÕES (MODELO UNIFICADO)
+-- ----------------------------------------------------------
+
+INSERT INTO public.pontuacao (id, avaliacao_id, competencia_id, meta_id, nota, comentario) VALUES
+(304, 203, 13, NULL, 4.5, 'Excelente adaptação no projeto inicial.'),
+(305, 203, NULL, 22, 5.0, 'Resultado acima da meta prevista.')
+ON CONFLICT (id) DO NOTHING;
+
+SELECT setval(
+  'public.pontuacao_id_seq',
+  (SELECT COALESCE(MAX(id), 1) FROM public.pontuacao),
+  true
+);
+
+
+-- ----------------------------------------------------------
+-- 9. RESULTADO NINE BOX
+-- ----------------------------------------------------------
+
+INSERT INTO public.nine_box (id, ciclo_colaborador_id, posicao_x_potencial, posicao_y_desempenho, score_final_merito, elegivel_carreira) VALUES
+(11, 1002, 'Alto', 'Alto', 4.9, TRUE)
+ON CONFLICT (id) DO NOTHING;
+
+SELECT setval(
+  'public.nine_box_id_seq',
+  (SELECT COALESCE(MAX(id), 1) FROM public.nine_box),
+  true
+);
+
+-- ==========================================================
+-- FIM DO DML COMPLEMENTAR
+-- ==========================================================

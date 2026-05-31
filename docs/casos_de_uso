@@ -1,0 +1,230 @@
+# 📘 Casos de Uso – Plataforma de Gestão de Desempenho (CDA 2026)
+
+---
+
+## 1. Visão Geral
+
+Este documento descreve os **casos de uso principais** da Plataforma de Gestão do Ciclo de Desempenho (CDA 2026), detalhando as interações entre os **atores** e o **sistema**, com foco nos fluxos de negócio.
+
+---
+
+## 2. Atores do Sistema
+
+- **Gestor**
+- **Colaborador**
+- **Analista de RH**
+- **Administrador de Sistemas**
+- **Sistema (processos automáticos)**
+
+---
+
+## 3. Casos de Uso
+
+---
+
+### UC-01 – Autenticar Usuário
+
+**Ator Principal:** Usuário (Gestor, RH, Colaborador, Admin)  
+**Descrição:** Permite que o usuário acesse o sistema de acordo com seu perfil.  
+**Pré-condição:** Usuário cadastrado e ativo.  
+**Pós-condição:** Usuário autenticado com sessão válida.
+
+**Fluxo Principal:**
+1. Usuário informa e-mail e senha.
+2. Sistema valida credenciais.
+3. Sistema identifica o perfil do usuário.
+4. Sistema direciona para o painel correspondente.
+
+**Fluxos Alternativos:**
+- Credenciais inválidas → mensagem de erro.
+- Usuário inativo → acesso negado.
+
+---
+
+### UC-02 – Manter Ciclo de Desempenho
+
+**Ator Principal:** Analista de RH  
+**Descrição:** Criar, editar, consultar e excluir ciclos de desempenho.  
+**Relaciona-se a:** RF 1.1  
+
+**Fluxo Principal:**
+1. RH acessa módulo de ciclos.
+2. Cria ou edita ciclo com nome, período e descrição.
+3. Sistema valida dados obrigatórios.
+4. Sistema salva o ciclo.
+
+**Regras de Negócio:**
+- Não permitir ciclos com períodos sobrepostos.
+- Nome do ciclo deve ser único.
+
+---
+
+### UC-03 – Cadastrar Colaborador
+
+**Ator Principal:** Administrador / RH  
+**Relaciona-se a:** RF 1.2  
+
+**Fluxo Principal:**
+1. Usuário acessa cadastro de colaboradores.
+2. Informa dados pessoais, cargo e gestor.
+3. Sistema valida unicidade de matrícula e e-mail.
+4. Sistema cria colaborador vinculado ao usuário.
+
+---
+
+### UC-04 – Importar Colaboradores via CSV
+
+**Ator Principal:** Analista de RH  
+**Descrição:** Importar colaboradores em lote.  
+
+**Fluxo Principal:**
+1. RH envia arquivo CSV.
+2. Sistema valida estrutura e dados.
+3. Registros válidos são importados.
+4. Registros inválidos são registrados em staging.
+
+**Pós-condição:** Tabela `colaborador_import` atualizada.
+
+---
+
+### UC-05 – Realizar Avaliação de Desempenho
+
+**Ator Principal:** Gestor / Colaborador  
+**Relaciona-se a:** RF 1.3  
+
+**Fluxo Principal:**
+1. Usuário acessa avaliação pendente.
+2. Preenche notas de competências e/ou metas.
+3. Sistema valida preenchimento mínimo.
+4. Usuário envia avaliação.
+5. Sistema salva avaliação com status *FINALIZADO*.
+
+**Regra Crítica:**
+- Avaliação não pode ser enviada incompleta.
+
+---
+
+### UC-06 – Calcular Mérito do Colaborador
+
+**Ator Principal:** Sistema  
+**Relaciona-se a:** RF 2.1  
+
+**Descrição:** Cálculo automático da pontuação final de mérito.
+
+**Fluxo Principal:**
+1. Sistema identifica avaliações finalizadas.
+2. Aplica pesos configurados (competências e metas).
+3. Calcula score final.
+4. Atualiza pontuação do colaborador.
+
+---
+
+### UC-07 – Atualizar Nine Box
+
+**Ator Principal:** Sistema  
+**Relaciona-se a:** RF 2.2  
+
+**Fluxo Principal:**
+1. Sistema recebe novo score de mérito.
+2. Calcula posição X (Potencial) e Y (Desempenho).
+3. Atualiza tabela `nine_box`.
+
+---
+
+### UC-08 – Liberar Plano de Carreira
+
+**Ator Principal:** Sistema  
+**Relaciona-se a:** RF 2.3  
+
+**Descrição:** Identifica colaboradores elegíveis para carreira.
+
+**Regra de Negócio:**
+- Score ≥ critério definido pelo RH.
+
+**Fluxo Principal:**
+1. Sistema identifica elegíveis.
+2. Cria vínculo em `colaborador_trilha`.
+3. Notifica colaborador e gestor.
+
+---
+
+### UC-09 – Consultar Histórico de Desempenho
+
+**Ator Principal:** Gestor / RH  
+**Relaciona-se a:** RF 2.4  
+
+**Descrição:** Visualizar histórico consolidado do colaborador.
+
+**Fluxo Principal:**
+1. Usuário seleciona colaborador.
+2. Sistema exibe avaliações, feedbacks e Nine Box históricos.
+
+---
+
+### UC-10 – Acessar Painel do Gestor
+
+**Ator Principal:** Gestor  
+**Relaciona-se a:** RF 3.1  
+
+**Descrição:** Visualizar status do ciclo e equipe.
+
+**Fluxo Principal:**
+1. Gestor acessa painel.
+2. Sistema exibe:
+   - Avaliações pendentes
+   - Resultados parciais
+   - Distribuição Nine Box
+
+---
+
+### UC-11 – Acessar Painel de Sucessão (RH)
+
+**Ator Principal:** Analista de RH  
+**Relaciona-se a:** RF 3.2  
+
+**Descrição:** Identificação de sucessores e lacunas.
+
+**Fluxo Principal:**
+1. RH acessa painel de sucessão.
+2. Sistema exibe análises e relatórios estratégicos.
+
+---
+
+### UC-12 – Acessar Feedback e Carreira
+
+**Ator Principal:** Colaborador  
+**Relaciona-se a:** RF 4.1  
+
+**Descrição:** Acompanhar desempenho e evolução.
+
+**Fluxo Principal:**
+1. Colaborador acessa área pessoal.
+2. Sistema exibe:
+   - Feedbacks
+   - Notas
+   - Trilha de carreira liberada
+
+---
+
+### UC-13 – Gerenciar Perfis de Usuário
+
+**Ator Principal:** Administrador de Sistemas  
+**Relaciona-se a:** RF 5.1  
+
+**Descrição:** Gerenciar perfis e permissões.
+
+**Fluxo Principal:**
+1. Admin cria ou edita perfil.
+2. Define permissões.
+3. Sistema valida impacto em usuários existentes.
+4. Sistema aplica alterações.
+
+---
+
+## 4. Observações Gerais
+
+- Casos UC-06, UC-07 e UC-08 podem rodar de forma **assíncrona**.
+- Todos os casos devem respeitar **LGPD e controle de acesso por perfil**.
+- Logs de auditoria devem ser gerados para ações sensíveis.
+
+---

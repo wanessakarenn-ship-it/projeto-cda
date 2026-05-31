@@ -1,0 +1,40 @@
+
+1. Rotas de Acesso Público
+Login: /login
+
+2. Rotas do Colaborador (Acesso Geral)
+Estas páginas são acessíveis por todos os perfis (COLABORADOR, GESTOR, ADMIN):
+Meu Painel (Home): /
+Minha Avaliação: /avaliacao
+Meus Feedbacks: /feedback
+Minhas Metas: /metas
+
+3. Rotas do Gestor
+Acessíveis apenas por perfis GESTOR e ADMIN:
+Painel da Equipe: /gestor
+Relatórios de Performance: /gestor/relatorios
+
+4. Rotas de Administração (Exclusivo ADMIN)
+Acessíveis apenas por usuários com perfil ADMIN. Caso um colaborador tente acessar, ele será redirecionado para a página de erro:
+Dashboard Admin: /admin/dashboard (ou apenas /admin)
+Gestão de Ciclos: /admin/ciclos
+Metas Globais: /admin/metas
+Importação de Dados: /admin/importar
+Dicionário de Competências: /admin/competencias
+Gestão de Usuários: /admin/usuarios
+Configuração Nine Box: /admin/nine-box-config
+
+Logins criados para teste até o momento 
+https://cda-gestao-desempenho-2026.web.app/login
+
+ADMIN: 
+login:admin@cda2026.com
+senha:admin123
+
+GESTOR
+login:gestor@cda2026.com
+senha:gestor123
+
+COLABORADOR
+user@cda2026.com
+user123

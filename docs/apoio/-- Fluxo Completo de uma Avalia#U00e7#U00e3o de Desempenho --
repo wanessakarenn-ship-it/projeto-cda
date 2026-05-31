@@ -1,0 +1,172 @@
+# 🔄 Fluxo Completo de uma Avaliação de Desempenho – CDA 2026
+
+Este documento descreve o **fluxo completo de dados e processos** da Plataforma de Gestão do Ciclo de Desempenho (CDA 2026), desde o planejamento administrativo até a liberação de trilhas de desenvolvimento do colaborador.
+
+O fluxo percorre as entidades do sistema de forma **lógica, sequencial e integrada**, garantindo rastreabilidade e consistência dos dados.
+
+---
+
+## 1. Definição do Contexto  
+### (Início do Ciclo de Avaliação)
+
+Nesta etapa ocorre o planejamento do período avaliativo e a definição dos participantes.
+
+### Entidades Envolvidas
+- `CICLO_DESEMPENHO`
+- `USUARIO`
+- `COLABORADOR`
+- `CICLO_COLABORADOR`
+
+### Fluxo
+
+1. **Criação do Ciclo**
+   - Um usuário com perfil **Administrador** cria um registro em `CICLO_DESEMPENHO`.
+   - São definidos nome do ciclo (ex.: *Ciclo CDA 2026*), data de início e data de fim.
+
+2. **Seleção dos Participantes**
+   - O sistema, ou o RH, identifica todos os `COLABORADORES` ativos elegíveis para o ciclo.
+
+3. **Vínculo Ciclo x Colaborador**
+   - Para cada colaborador participante, é criado um registro em `CICLO_COLABORADOR`.
+   - Essa tabela representa o **vínculo oficial** do colaborador com aquele ciclo específico e serve como eixo central do processo avaliativo.
+
+---
+
+## 2. Estruturação da Avaliação  
+### (Definição dos Itens Avaliativos)
+
+Nesta etapa são definidos os critérios que serão avaliados.
+
+### Entidades Envolvidas
+- `COMPETENCIA`
+- `META`
+
+### Fluxo
+
+1. **Configuração de Competências**
+   - O RH cadastra as `COMPETENCIAS`.
+   - Cada competência possui:
+     - Nome
+     - Descrição
+     - Categoria (*Geral* ou *Específica*)
+     - Peso relativo na avaliação
+
+2. **Definição de Metas**
+   - São cadastradas as `METAS`, contendo:
+     - Título
+     - Descrição
+     - Peso
+     - Prazo
+
+Esses elementos formam a **base de mensuração de desempenho e mérito** do ciclo.
+
+---
+
+## 3. Coleta de Dados  
+### (Execução da Avaliação)
+
+Fase em que avaliadores registram notas e comentários.
+
+### Entidades Envolvidas
+- `AVALIACAO`
+- `PONTUACAO`
+
+### Fluxo
+
+1. **Criação das Avaliações**
+   - Para cada registro em `CICLO_COLABORADOR`, o sistema cria registros em `AVALIACAO`.
+   - Cada avaliação possui:
+     - Tipo (`AUTOAVALIACAO`, `GESTOR`, etc.)
+     - Avaliador responsável
+     - Status inicial `PENDENTE`
+
+2. **Registro das Pontuações**
+   - O avaliador registra notas e comentários.
+   - Cada entrada gera um registro na tabela `PONTUACAO`.
+
+### Regra de Negócio Crítica
+
+- Cada registro em `PONTUACAO`:
+  - Deve estar vinculado a **uma única `AVALIACAO`**
+  - Deve apontar **obrigatoriamente** para:
+    - uma `COMPETENCIA` **OU**
+    - uma `META`
+  - Registra:
+    - nota
+    - comentário
+    - peso_aplicado no momento da avaliação
+
+3. **Finalização**
+   - Ao concluir o preenchimento mínimo obrigatório, a avaliação tem seu status alterado para `FINALIZADO`.
+
+---
+
+## 4. Processamento e Resultado  
+### (Cálculo de Mérito e Nine Box)
+
+Nesta etapa os dados são consolidados para geração de inteligência estratégica.
+
+### Entidades Envolvidas
+- `AVALIACAO`
+- `PONTUACAO`
+- `NINE_BOX`
+
+### Fluxo
+
+1. **Processamento das Avaliações**
+   - O sistema identifica avaliações com status `FINALIZADO`.
+
+2. **Cálculo de Mérito**
+   - São agregadas as pontuações da tabela `PONTUACAO`.
+   - O sistema calcula:
+     - `score_competencias`
+     - `score_metas`
+     - `score_final_merito`
+
+3. **Posicionamento Nine Box**
+   - Com base nos scores, o sistema gera um registro em `NINE_BOX`.
+   - São definidos:
+     - `posicao_x_potencial`
+     - `posicao_y_desempenho`
+     - `elegivel_carreira` (calculado automaticamente)
+
+---
+
+## 5. Desenvolvimento Pós-Ciclo  
+### (Carreira e Evolução)
+
+O encerramento do ciclo ativa ações de desenvolvimento.
+
+### Entidades Envolvidas
+- `NINE_BOX`
+- `PLANO_CARREIRA`
+- `COLABORADOR_TRILHA`
+
+### Fluxo
+
+1. **Análise de Elegibilidade**
+   - O sistema identifica colaboradores com `elegivel_carreira = TRUE` no `NINE_BOX`.
+
+2. **Liberação de Trilhas**
+   - Para colaboradores elegíveis, é criado um vínculo em `COLABORADOR_TRILHA`.
+   - São definidos:
+     - plano de carreira
+     - data de início
+     - status (ex.: `LIBERADO`)
+
+3. **Engajamento do Colaborador**
+   - O colaborador passa a visualizar seu plano de desenvolvimento no frontend.
+   - O gestor e o RH acompanham a evolução e próximos passos.
+
+---
+
+## ✅ Resumo do Fluxo
+
+CICLO_DESEMPENHO
+└── CICLO_COLABORADOR
+└── AVALIACAO
+└── PONTUACAO
+↓
+NINE_BOX
+↓
+COLABORADOR_TRILHA

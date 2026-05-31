@@ -1,0 +1,102 @@
+-- ==========================================================
+-- CONSULTAS DE PAINÉIS E RELATÓRIOS – CDA 2026 (OTIMIZADO)
+-- ==========================================================
+
+-- ----------------------------------------------------------
+-- 1. Monitoramento de Progresso (Dashboard Administrativo)
+-- ----------------------------------------------------------
+SELECT
+    c.nome AS ciclo_nome,
+    COUNT(DISTINCT cc.colaborador_id) AS total_participantes,
+    COUNT(DISTINCT CASE WHEN a_auto.status = 'FINALIZADO' THEN cc.colaborador_id END) AS autoavaliacoes_concluidas,
+    COUNT(DISTINCT CASE WHEN a_gestor.status = 'FINALIZADO' THEN cc.colaborador_id END) AS avaliacoes_gestor_concluidas,
+    -- NULLIF evita divisão por zero se não houver participantes
+    ROUND(
+        (COUNT(DISTINCT CASE WHEN a_gestor.status = 'FINALIZADO' THEN cc.colaborador_id END) * 100.0) 
+        / NULLIF(COUNT(DISTINCT cc.colaborador_id), 0), 2
+    ) AS percentual_conclusao_gestor
+FROM public.ciclo_desempenho c
+JOIN public.ciclo_colaborador cc ON c.id = cc.ciclo_id
+LEFT JOIN public.avaliacao a_auto ON cc.id = a_auto.ciclo_colaborador_id AND a_auto.tipo = 'AUTOAVALIACAO'
+LEFT JOIN public.avaliacao a_gestor ON cc.id = a_gestor.ciclo_colaborador_id AND a_gestor.tipo = 'GESTOR'
+WHERE c.nome = 'Ciclo CDA 2026'
+GROUP BY c.id, c.nome; -- Incluído c.id por boa prática do Postgres
+
+-- ----------------------------------------------------------
+-- 2. Painel de Resultados (Matriz Nine Box Agregada)
+-- ----------------------------------------------------------
+SELECT
+    -- COALESCE garante que o front-end receba uma string amigável se o cálculo não foi feito
+    COALESCE(nb.posicao_x_potencial, 'N/A') AS potencial,
+    COALESCE(nb.posicao_y_desempenho, 'N/A') AS desempenho,
+    COUNT(cc.colaborador_id) AS contagem_colaboradores
+FROM public.ciclo_colaborador cc
+JOIN public.ciclo_desempenho c ON cc.ciclo_id = c.id
+LEFT JOIN public.nine_box nb ON nb.ciclo_colaborador_id = cc.id
+WHERE c.nome = 'Ciclo CDA 2026'
+GROUP BY nb.posicao_x_potencial, nb.posicao_y_desempenho
+ORDER BY nb.posicao_y_desempenho DESC, nb.posicao_x_potencial ASC;
+
+-- ----------------------------------------------------------
+-- 3. Painel de Detalhes (Análise de Gaps)
+-- ----------------------------------------------------------
+SELECT
+    CASE
+        WHEN p.competencia_id IS NOT NULL THEN comp.nome
+        WHEN p.meta_id IS NOT NULL THEN m.titulo
+        ELSE 'Item Indefinido'
+    END AS item_avaliacao,
+    COALESCE(comp.categoria, 'Metas Técnicas') AS categoria_competencia,
+    ROUND(AVG(p.nota), 2) AS nota_media,
+    COUNT(p.id) AS total_avaliacoes
+FROM public.pontuacao p
+JOIN public.avaliacao a ON p.avaliacao_id = a.id
+JOIN public.ciclo_colaborador cc ON a.ciclo_colaborador_id = cc.id
+JOIN public.ciclo_desempenho cd ON cc.ciclo_id = cd.id
+LEFT JOIN public.competencia comp ON p.competencia_id = comp.id
+LEFT JOIN public.meta m ON p.meta_id = m.id
+WHERE cd.nome = 'Ciclo CDA 2026'
+    AND a.status = 'FINALIZADO'
+    AND a.tipo = 'GESTOR'
+GROUP BY 1, 2 -- Agrupa pelos aliases ou expressões de coluna 1 (item) e 2 (categoria)
+ORDER BY 2, 3 DESC;
+
+-- ----------------------------------------------------------
+-- 4. Histórico de Evolução (Utilizado na ColaboradorPage.tsx)
+-- ----------------------------------------------------------
+SELECT
+    c.nome AS nome_ciclo,
+    cc.status_experiencia,
+    -- Concatenação segura tratada para nulos
+    CASE 
+        WHEN nb.id IS NOT NULL THEN nb.posicao_y_desempenho || ' x ' || nb.posicao_x_potencial 
+        ELSE 'Não calculado' 
+    END AS nine_box_resultado,
+    COALESCE(nb.score_final_merito, 0) AS score_final,
+    COALESCE(nb.elegivel_carreira, false) AS elegibilidade,
+    nb.data_calculo
+FROM public.colaborador colab
+JOIN public.ciclo_colaborador cc ON colab.id = cc.colaborador_id
+JOIN public.ciclo_desempenho c ON cc.ciclo_id = c.id
+LEFT JOIN public.nine_box nb ON cc.id = nb.ciclo_colaborador_id
+WHERE colab.matricula = 'MAT002'
+ORDER BY c.data_inicio ASC;
+
+-- ----------------------------------------------------------
+-- 5. Painel do Gestor (Equipe Direta)
+-- ----------------------------------------------------------
+SELECT
+    colab_equipe.nome AS colaborador,
+    cargo.titulo AS cargo,
+    COALESCE(a_auto.status, 'PENDENTE') AS status_autoavaliacao,
+    COALESCE(a_gestor.status, 'PENDENTE') AS status_avaliacao_gestor
+FROM public.colaborador colab_gestor
+JOIN public.colaborador colab_equipe ON colab_gestor.id = colab_equipe.gestor_id
+JOIN public.cargo ON colab_equipe.cargo_id = cargo.id
+JOIN public.ciclo_colaborador cc ON colab_equipe.id = cc.colaborador_id
+JOIN public.ciclo_desempenho cd ON cc.ciclo_id = cd.id
+LEFT JOIN public.avaliacao a_auto ON cc.id = a_auto.ciclo_colaborador_id AND a_auto.tipo = 'AUTOAVALIACAO'
+LEFT JOIN public.avaliacao a_gestor ON cc.id = a_gestor.ciclo_colaborador_id AND a_gestor.tipo = 'GESTOR'
+WHERE colab_gestor.id = 1 
+    AND cd.nome = 'Ciclo CDA 2026'
+ORDER BY colab_equipe.nome;

@@ -1,0 +1,342 @@
+-- ==========================================================
+-- DDL - PLATAFORMA DE GESTÃO DO CICLO DE DESEMPENHO (CDA 2026)
+-- PostgreSQL / Supabase (VERSÃO FINAL AJUSTADA)
+-- ==========================================================
+
+BEGIN;
+
+-- ==========================================================
+-- FUNÇÃO PADRÃO updated_at
+-- ==========================================================
+CREATE OR REPLACE FUNCTION set_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.updated_at = now();
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+-- ==========================================================
+-- 1. PERFIL
+-- ==========================================================
+CREATE TABLE IF NOT EXISTS public.perfil (
+    id BIGSERIAL PRIMARY KEY,
+    nome VARCHAR NOT NULL UNIQUE,
+    descricao TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- ==========================================================
+-- 2. CARGO
+-- ==========================================================
+CREATE TABLE IF NOT EXISTS public.cargo (
+    id BIGSERIAL PRIMARY KEY,
+    titulo VARCHAR NOT NULL UNIQUE,
+    descricao TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- ==========================================================
+-- 3. USUARIO
+-- ==========================================================
+CREATE TABLE IF NOT EXISTS public.usuario (
+    id BIGSERIAL PRIMARY KEY,
+    email VARCHAR NOT NULL UNIQUE,
+    nome VARCHAR,
+    perfil_id BIGINT NOT NULL,
+    senha_hash TEXT NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    CONSTRAINT fk_usuario_perfil
+        FOREIGN KEY (perfil_id)
+        REFERENCES public.perfil(id)
+);
+
+CREATE INDEX idx_usuario_email ON public.usuario(email);
+
+-- ==========================================================
+-- 4. COLABORADOR
+-- ==========================================================
+CREATE TABLE IF NOT EXISTS public.colaborador (
+    id BIGSERIAL PRIMARY KEY,
+    usuario_id BIGINT UNIQUE,
+    nome VARCHAR NOT NULL,
+    cargo_id BIGINT,
+    gestor_id BIGINT,
+    matricula VARCHAR NOT NULL UNIQUE,
+    ativo BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+
+    CONSTRAINT fk_colaborador_usuario
+        FOREIGN KEY (usuario_id)
+        REFERENCES public.usuario(id)
+        ON DELETE SET NULL,
+
+    CONSTRAINT fk_colaborador_cargo
+        FOREIGN KEY (cargo_id)
+        REFERENCES public.cargo(id)
+        ON DELETE SET NULL,
+
+    CONSTRAINT fk_colaborador_gestor
+        FOREIGN KEY (gestor_id)
+        REFERENCES public.colaborador(id)
+        ON DELETE SET NULL
+);
+
+-- ==========================================================
+-- 5. CICLO_DESEMPENHO
+-- ==========================================================
+CREATE TABLE IF NOT EXISTS public.ciclo_desempenho (
+    id BIGSERIAL PRIMARY KEY,
+    nome VARCHAR NOT NULL UNIQUE,
+    data_inicio DATE NOT NULL,
+    data_fim DATE NOT NULL,
+    descricao TEXT,
+    criado_por BIGINT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+
+    CONSTRAINT fk_ciclo_criado_por
+        FOREIGN KEY (criado_por)
+        REFERENCES public.usuario(id)
+        ON DELETE SET NULL,
+
+    CONSTRAINT chk_periodo_ciclo
+        CHECK (data_fim >= data_inicio)
+);
+
+-- ==========================================================
+-- 6. CICLO_COLABORADOR
+-- ==========================================================
+CREATE TABLE IF NOT EXISTS public.ciclo_colaborador (
+    id BIGSERIAL PRIMARY KEY,
+    ciclo_id BIGINT NOT NULL,
+    colaborador_id BIGINT NOT NULL,
+    recomendacao_experiencia TEXT,
+    status_experiencia VARCHAR NOT NULL DEFAULT 'EM_ANDAMENTO',
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+
+    CONSTRAINT fk_cc_ciclo
+        FOREIGN KEY (ciclo_id)
+        REFERENCES public.ciclo_desempenho(id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_cc_colaborador
+        FOREIGN KEY (colaborador_id)
+        REFERENCES public.colaborador(id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT uq_ciclo_colaborador
+        UNIQUE (ciclo_id, colaborador_id)
+);
+
+-- ==========================================================
+-- 7. COMPETENCIA
+-- ==========================================================
+CREATE TABLE IF NOT EXISTS public.competencia (
+    id BIGSERIAL PRIMARY KEY,
+    nome VARCHAR NOT NULL UNIQUE,
+    descricao TEXT,
+    categoria VARCHAR NOT NULL DEFAULT 'GERAL',
+    peso NUMERIC NOT NULL DEFAULT 1,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+
+    CONSTRAINT chk_categoria
+        CHECK (categoria IN ('GERAL', 'ESPECIFICA'))
+);
+
+-- ==========================================================
+-- 8. META
+-- ==========================================================
+CREATE TABLE IF NOT EXISTS public.meta (
+    id BIGSERIAL PRIMARY KEY,
+    titulo VARCHAR NOT NULL,
+    descricao TEXT,
+    peso NUMERIC NOT NULL DEFAULT 1,
+    prazo DATE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- ==========================================================
+-- 9. AVALIACAO
+-- ==========================================================
+CREATE TABLE IF NOT EXISTS public.avaliacao (
+    id BIGSERIAL PRIMARY KEY,
+    ciclo_colaborador_id BIGINT NOT NULL,
+    avaliador_id BIGINT NOT NULL,
+    tipo VARCHAR NOT NULL,
+    status VARCHAR NOT NULL,
+    pontuacao_merito NUMERIC,
+    data_envio TIMESTAMPTZ,
+    comentario TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+
+    CONSTRAINT fk_avaliacao_cc
+        FOREIGN KEY (ciclo_colaborador_id)
+        REFERENCES public.ciclo_colaborador(id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_avaliacao_avaliador
+        FOREIGN KEY (avaliador_id)
+        REFERENCES public.colaborador(id),
+
+    CONSTRAINT uq_avaliacao
+        UNIQUE (ciclo_colaborador_id, avaliador_id, tipo),
+
+    CONSTRAINT chk_tipo_avaliacao
+        CHECK (tipo IN ('AUTOAVALIACAO', 'GESTOR')),
+
+    CONSTRAINT chk_status_avaliacao
+        CHECK (status IN ('PENDENTE', 'FINALIZADO'))
+);
+
+-- ==========================================================
+-- 10. PONTUACAO
+-- ==========================================================
+CREATE TABLE IF NOT EXISTS public.pontuacao (
+    id BIGSERIAL PRIMARY KEY,
+    avaliacao_id BIGINT NOT NULL,
+    competencia_id BIGINT,
+    meta_id BIGINT,
+    nota NUMERIC NOT NULL,
+    comentario TEXT,
+    peso_aplicado NUMERIC NOT NULL DEFAULT 1,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+
+    CONSTRAINT fk_pontuacao_avaliacao
+        FOREIGN KEY (avaliacao_id)
+        REFERENCES public.avaliacao(id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_pontuacao_competencia
+        FOREIGN KEY (competencia_id)
+        REFERENCES public.competencia(id),
+
+    CONSTRAINT fk_pontuacao_meta
+        FOREIGN KEY (meta_id)
+        REFERENCES public.meta(id),
+
+    CONSTRAINT chk_item_avaliado
+        CHECK (
+            (competencia_id IS NOT NULL AND meta_id IS NULL)
+            OR
+            (competencia_id IS NULL AND meta_id IS NOT NULL)
+        ),
+
+    CONSTRAINT uq_pontuacao_competencia
+        UNIQUE (avaliacao_id, competencia_id),
+
+    CONSTRAINT uq_pontuacao_meta
+        UNIQUE (avaliacao_id, meta_id)
+);
+
+-- ==========================================================
+-- 11. NINE_BOX
+-- ==========================================================
+CREATE TABLE IF NOT EXISTS public.nine_box (
+    id BIGSERIAL PRIMARY KEY,
+    ciclo_colaborador_id BIGINT NOT NULL UNIQUE,
+    posicao_x_potencial VARCHAR NOT NULL,
+    posicao_y_desempenho VARCHAR NOT NULL,
+    score_competencias NUMERIC NOT NULL DEFAULT 0,
+    score_metas NUMERIC NOT NULL DEFAULT 0,
+    score_final_merito NUMERIC NOT NULL DEFAULT 0,
+    elegivel_carreira BOOLEAN NOT NULL DEFAULT FALSE,
+    data_calculo TIMESTAMPTZ NOT NULL DEFAULT now(),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+
+    CONSTRAINT fk_ninebox_cc
+        FOREIGN KEY (ciclo_colaborador_id)
+        REFERENCES public.ciclo_colaborador(id)
+        ON DELETE CASCADE
+);
+
+-- ==========================================================
+-- 12. PLANO_CARREIRA
+-- ==========================================================
+CREATE TABLE IF NOT EXISTS public.plano_carreira (
+    id BIGSERIAL PRIMARY KEY,
+    nome VARCHAR NOT NULL UNIQUE,
+    descricao TEXT,
+    versao VARCHAR,
+    publicado BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- ==========================================================
+-- 13. COLABORADOR_TRILHA
+-- ==========================================================
+CREATE TABLE IF NOT EXISTS public.colaborador_trilha (
+    id BIGSERIAL PRIMARY KEY,
+    plano_id BIGINT NOT NULL,
+    colaborador_id BIGINT NOT NULL,
+    data_inicio DATE NOT NULL,
+    data_fim DATE,
+    status VARCHAR NOT NULL DEFAULT 'LIBERADO',
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+
+    CONSTRAINT fk_trilha_plano
+        FOREIGN KEY (plano_id)
+        REFERENCES public.plano_carreira(id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_trilha_colaborador
+        FOREIGN KEY (colaborador_id)
+        REFERENCES public.colaborador(id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT uq_trilha
+        UNIQUE (plano_id, colaborador_id)
+);
+
+-- ==========================================================
+-- 14. COLABORADOR_IMPORT
+-- ==========================================================
+CREATE TABLE IF NOT EXISTS public.colaborador_import (
+    id BIGSERIAL PRIMARY KEY,
+    matricula VARCHAR NOT NULL,
+    nome_completo VARCHAR NOT NULL,
+    email_corporativo VARCHAR NOT NULL,
+    nome_cargo VARCHAR NOT NULL,
+    data_admissao DATE NOT NULL,
+    matricula_gestor VARCHAR,
+    status_processamento VARCHAR NOT NULL DEFAULT 'PENDENTE',
+    mensagem_erro TEXT,
+    data_registro TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- ==========================================================
+-- TRIGGERS updated_at
+-- ==========================================================
+DO $$
+DECLARE r RECORD;
+BEGIN
+  FOR r IN
+    SELECT tablename
+    FROM pg_tables
+    WHERE schemaname = 'public'
+  LOOP
+    EXECUTE format(
+      'CREATE TRIGGER trg_%I_updated_at
+       BEFORE UPDATE ON %I
+       FOR EACH ROW
+       EXECUTE FUNCTION set_updated_at();',
+      r.tablename,
+      r.tablename
+    );
+  END LOOP;
+END $$;
+
+COMMIT;

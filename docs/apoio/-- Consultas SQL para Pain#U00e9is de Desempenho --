@@ -1,0 +1,93 @@
+1. Monitoramento de Progresso (Dashboard)
+Correção: No PostgreSQL, ao usar funções de agregação, todas as colunas não agregadas no SELECT devem estar no GROUP BY.
+
+O que mudou: A lógica de contagem está correta, mas certifique-se de que o filtro c.nome seja dinâmico na aplicação.
+
+SQL
+
+SELECT
+    c.nome AS ciclo_nome,
+    COUNT(DISTINCT cc.colaborador_id) AS total_participantes,
+    COUNT(DISTINCT CASE WHEN a_auto.status = 'FINALIZADO' THEN cc.colaborador_id END) AS autoavaliacoes_concluidas,
+    COUNT(DISTINCT CASE WHEN a_gestor.status = 'FINALIZADO' THEN cc.colaborador_id END) AS avaliacoes_gestor_concluidas,
+    (COUNT(DISTINCT CASE WHEN a_gestor.status = 'FINALIZADO' THEN cc.colaborador_id END) * 100.0 / 
+     NULLIF(COUNT(DISTINCT cc.colaborador_id), 0))::NUMERIC(5,2) AS percentual_conclusao_gestor
+FROM public.ciclo_desempenho c
+JOIN public.ciclo_colaborador cc ON c.id = cc.ciclo_id
+LEFT JOIN public.avaliacao a_auto ON cc.id = a_auto.ciclo_colaborador_id AND a_auto.tipo = 'AUTOAVALIACAO'
+LEFT JOIN public.avaliacao a_gestor ON cc.id = a_gestor.ciclo_colaborador_id AND a_gestor.tipo = 'GESTOR'
+WHERE c.nome = 'Ciclo CDA 2026'
+GROUP BY c.id, c.nome; -- Adicionado c.id para garantir unicidade
+2. Painel de Resultados (Nine Box)
+Correção: Adicionado tratamento para casos onde o cálculo do Nine Box ainda não foi processado (evitando que colaboradores sumam do gráfico antes do cálculo final).
+
+SQL
+
+SELECT
+    COALESCE(nb.posicao_x_potencial, 'NÃO CALCULADO') AS potencial,
+    COALESCE(nb.posicao_y_desempenho, 'NÃO CALCULADO') AS desempenho,
+    COUNT(cc.colaborador_id) AS contagem_colaboradores
+FROM public.ciclo_colaborador cc
+JOIN public.ciclo_desempenho c ON cc.ciclo_id = c.id
+LEFT JOIN public.nine_box nb ON cc.id = nb.ciclo_colaborador_id -- LEFT JOIN para ver pendências
+WHERE c.nome = 'Ciclo CDA 2026'
+GROUP BY nb.posicao_x_potencial, nb.posicao_y_desempenho
+ORDER BY desempenho DESC, potencial ASC;
+3. Análise de Gaps (Competências e Metas)
+Correção Crítica: No seu código original, o GROUP BY usava o alias item_avaliacao. Em muitas versões do PostgreSQL, você deve repetir a expressão CASE ou usar uma Subquery/CTE para agrupar corretamente.
+
+SQL
+
+WITH detalhe_pontuacao AS (
+    SELECT
+        CASE
+            WHEN p.competencia_id IS NOT NULL THEN comp.nome
+            WHEN p.meta_id IS NOT NULL THEN m.titulo
+            ELSE 'N/A'
+        END AS item_avaliacao,
+        COALESCE(comp.categoria, 'Meta Técnica') AS categoria,
+        p.nota
+    FROM public.pontuacao p
+    JOIN public.avaliacao a ON p.avaliacao_id = a.id
+    JOIN public.ciclo_colaborador cc ON a.ciclo_colaborador_id = cc.id
+    JOIN public.ciclo_desempenho cd ON cc.ciclo_id = cd.id
+    LEFT JOIN public.competencia comp ON p.competencia_id = comp.id
+    LEFT JOIN public.meta m ON p.meta_id = m.id
+    WHERE cd.nome = 'Ciclo CDA 2026' AND a.status = 'FINALIZADO' AND a.tipo = 'GESTOR'
+)
+SELECT 
+    item_avaliacao, 
+    categoria, 
+    AVG(nota)::NUMERIC(10,2) AS nota_media,
+    COUNT(*) AS total_avaliacoes
+FROM detalhe_pontuacao
+GROUP BY item_avaliacao, categoria
+ORDER BY categoria, nota_media DESC;
+4. Histórico de Evolução
+Otimização: Adicionado o nome do colaborador para conferência e tratamento de valores nulos no gráfico.
+
+SQL
+
+SELECT
+    c.nome AS nome_ciclo,
+    cc.status_experiencia,
+    CASE 
+        WHEN nb.id IS NOT NULL THEN nb.posicao_y_desempenho || ' x ' || nb.posicao_x_potencial 
+        ELSE 'Pendente' 
+    END AS nine_box_resultado,
+    COALESCE(nb.score_final_merito, 0) AS score_final,
+    COALESCE(nb.elegivel_carreira, false) AS elegibilidade
+FROM public.colaborador colab
+JOIN public.ciclo_colaborador cc ON colab.id = cc.colaborador_id
+JOIN public.ciclo_desempenho c ON cc.ciclo_id = c.id
+LEFT JOIN public.nine_box nb ON cc.id = nb.ciclo_colaborador_id
+WHERE colab.matricula = 'MAT002'
+ORDER BY c.data_inicio ASC;
+Resumo das Melhorias Aplicadas:
+Uso de CTEs (Common Table Expressions): Melhora a legibilidade em consultas complexas como a de Detalhes (Item 3).
+
+Tratamento de Nulos (COALESCE): Garante que o front-end não quebre ao receber valores nulos em campos de texto ou numéricos.
+
+Precisão Numérica: Adicionado cast para NUMERIC(10,2) em médias para evitar dízimas infinitas no JSON da API.
+
+Robustez no Agrupamento: Ajustado os GROUP BY para seguir o padrão rigoroso do PostgreSQL.

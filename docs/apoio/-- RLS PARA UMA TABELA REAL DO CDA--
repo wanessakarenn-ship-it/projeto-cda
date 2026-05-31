@@ -1,0 +1,25 @@
+BEGIN;
+
+-- 1️⃣ Ativa RLS
+ALTER TABLE public.ciclo_desempenho ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.ciclo_desempenho FORCE ROW LEVEL SECURITY;
+
+-- 2️⃣ ADMIN pode tudo
+CREATE POLICY ciclo_admin_all
+ON public.ciclo_desempenho
+FOR ALL
+USING (
+  (current_setting('request.jwt.claims', true)::json ->> 'perfil') = 'ADMIN'
+);
+
+-- 3️⃣ Usuários comuns só veem ciclos criados por eles
+CREATE POLICY ciclo_usuario_select
+ON public.ciclo_desempenho
+FOR SELECT
+USING (
+  criado_por = (
+    current_setting('request.jwt.claims', true)::json ->> 'id'
+  )::bigint
+);
+
+COMMIT;

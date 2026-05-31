@@ -1,0 +1,29 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html, body {
+    @apply bg-slate-50 text-slate-900 antialiased h-full;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-slate-200 rounded-full hover:bg-slate-300;
+  }
+}
+
+@layer components {
+  .glass-card {
+    @apply bg-white border border-slate-200 shadow-sm rounded-3xl;
+  }
+
+  .badge {
+    @apply inline-flex items-center text-[10px] font-bold px-2 py-0.5 rounded-full border uppercase tracking-wider;
+  }
+}

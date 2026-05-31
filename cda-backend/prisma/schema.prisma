@@ -1,0 +1,207 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// --- CORE MODELS ---
+
+model usuario {
+  id               Int                @id @default(autoincrement())
+  email            String             @unique @db.VarChar
+  nome             String?            @db.VarChar
+  perfil_id        Int
+  senha            String
+  firebase_uid     String?            @unique
+  created_at       DateTime           @default(now()) @db.Timestamptz(6)
+  updated_at       DateTime           @default(now()) @db.Timestamptz(6)
+  
+  // Relations
+  ciclo_desempenho ciclo_desempenho[]
+  colaborador      colaborador?
+  perfil           perfil             @relation(fields: [perfil_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_usuario_perfil")
+
+  @@index([email], map: "idx_usuario_email")
+  @@index([firebase_uid], map: "idx_usuario_firebase_uid")
+}
+
+model perfil {
+  id         Int       @id @default(autoincrement())
+  nome       String    @unique @db.VarChar
+  descricao  String?
+  created_at DateTime  @default(now()) @db.Timestamptz(6)
+  updated_at DateTime  @default(now()) @db.Timestamptz(6)
+  usuario    usuario[]
+}
+
+model ciclo_desempenho {
+  id                Int                 @id @default(autoincrement())
+  nome              String              @unique @db.VarChar
+  data_inicio       DateTime            @db.Date
+  data_fim          DateTime            @db.Date
+  descricao         String?
+  criado_por        Int?
+  created_at        DateTime            @default(now()) @db.Timestamptz(6)
+  updated_at        DateTime            @default(now()) @db.Timestamptz(6)
+  
+  // Relations
+  ciclo_colaborador ciclo_colaborador[]
+  usuario           usuario?            @relation(fields: [criado_por], references: [id], onUpdate: NoAction, map: "fk_ciclo_criado_por")
+}
+
+// --- OPERATIONAL MODELS ---
+
+model colaborador {
+  id                 Int                  @id @default(autoincrement())
+  usuario_id         Int?                 @unique
+  nome               String               @db.VarChar
+  cargo_id           Int?
+  gestor_id          Int?
+  matricula          String               @unique @db.VarChar
+  ativo              Boolean              @default(true)
+  created_at         DateTime             @default(now()) @db.Timestamptz(6)
+  updated_at         DateTime             @default(now()) @db.Timestamptz(6)
+  
+  // Relations
+  avaliacao          avaliacao[]
+  ciclo_colaborador  ciclo_colaborador[]
+  cargo              cargo?               @relation(fields: [cargo_id], references: [id], onUpdate: NoAction, map: "fk_colaborador_cargo")
+  gestor             colaborador?         @relation("colaboradorTocolaborador", fields: [gestor_id], references: [id], onUpdate: NoAction, map: "fk_colaborador_gestor")
+  subordinados       colaborador[]        @relation("colaboradorTocolaborador")
+  usuario            usuario?             @relation(fields: [usuario_id], references: [id], onUpdate: NoAction, map: "fk_colaborador_usuario")
+  colaborador_trilha colaborador_trilha[]
+}
+
+model avaliacao {
+  id                   Int               @id @default(autoincrement())
+  ciclo_colaborador_id Int
+  avaliador_id         Int
+  tipo                 String            @db.VarChar
+  status               String            @db.VarChar
+  pontuacao_merito     Decimal?          @db.Decimal
+  data_envio           DateTime?         @db.Timestamptz(6)
+  comentario           String?
+  created_at           DateTime          @default(now()) @db.Timestamptz(6)
+  updated_at           DateTime          @default(now()) @db.Timestamptz(6)
+  
+  // Relations
+  avaliador            colaborador       @relation(fields: [avaliador_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_avaliacao_avaliador")
+  ciclo_colaborador    ciclo_colaborador @relation(fields: [ciclo_colaborador_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_avaliacao_cc")
+  pontuacao            pontuacao[]
+
+  @@unique([ciclo_colaborador_id, avaliador_id, tipo], map: "uq_avaliacao")
+}
+
+model cargo {
+  id          Int           @id @default(autoincrement())
+  titulo      String        @unique @db.VarChar
+  descricao   String?
+  created_at  DateTime      @default(now()) @db.Timestamptz(6)
+  updated_at  DateTime      @default(now()) @db.Timestamptz(6)
+  colaborador colaborador[]
+}
+
+model ciclo_colaborador {
+  id                       Int              @id @default(autoincrement())
+  ciclo_id                 Int
+  colaborador_id           Int
+  recomendacao_experiencia String?
+  status_experiencia       String           @default("EM_ANDAMENTO") @db.VarChar
+  created_at               DateTime         @default(now()) @db.Timestamptz(6)
+  updated_at               DateTime         @default(now()) @db.Timestamptz(6)
+  
+  // Relations
+  avaliacao                avaliacao[]
+  ciclo_desempenho         ciclo_desempenho @relation(fields: [ciclo_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_cc_ciclo")
+  colaborador              colaborador      @relation(fields: [colaborador_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_cc_colaborador")
+  nine_box                 nine_box?
+
+  @@unique([ciclo_id, colaborador_id], map: "uq_ciclo_colaborador")
+}
+
+model nine_box {
+  id                   Int               @id @default(autoincrement())
+  ciclo_colaborador_id Int               @unique
+  posicao_x_potencial  String            @db.VarChar
+  posicao_y_desempenho String            @db.VarChar
+  score_competencias   Decimal           @default(0) @db.Decimal
+  score_metas          Decimal           @default(0) @db.Decimal
+  score_final_merito   Decimal           @default(0) @db.Decimal
+  elegivel_carreira    Boolean           @default(false)
+  data_calculo         DateTime          @default(now()) @db.Timestamptz(6)
+  created_at           DateTime          @default(now()) @db.Timestamptz(6)
+  updated_at           DateTime          @default(now()) @db.Timestamptz(6)
+  
+  ciclo_colaborador    ciclo_colaborador @relation(fields: [ciclo_colaborador_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_ninebox_cc")
+}
+
+model pontuacao {
+  id             Int          @id @default(autoincrement())
+  avaliacao_id   Int
+  competencia_id Int?
+  meta_id        Int?
+  nota           Decimal      @db.Decimal
+  comentario     String?
+  peso_aplicado  Decimal      @default(1) @db.Decimal
+  created_at     DateTime     @default(now()) @db.Timestamptz(6)
+  updated_at     DateTime     @default(now()) @db.Timestamptz(6)
+  
+  avaliacao      avaliacao    @relation(fields: [avaliacao_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_pontuacao_avaliacao")
+  competencia    competencia? @relation(fields: [competencia_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_pontuacao_competencia")
+  meta           meta?        @relation(fields: [meta_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "fk_pontuacao_meta")
+
+  @@unique([avaliacao_id, competencia_id], map: "uq_pontuacao_competencia")
+  @@unique([avaliacao_id, meta_id], map: "uq_pontuacao_meta")
+}
+
+model competencia {
+  id         Int         @id @default(autoincrement())
+  nome       String      @unique @db.VarChar
+  descricao  String?
+  categoria  String      @default("GERAL") @db.VarChar
+  peso       Decimal     @default(1) @db.Decimal
+  created_at DateTime    @default(now()) @db.Timestamptz(6)
+  updated_at DateTime    @default(now()) @db.Timestamptz(6)
+  pontuacao  pontuacao[]
+}
+
+model meta {
+  id         Int         @id @default(autoincrement())
+  titulo     String      @db.VarChar
+  descricao  String?
+  peso       Decimal     @default(1) @db.Decimal
+  prazo      DateTime?   @db.Date
+  created_at DateTime    @default(now()) @db.Timestamptz(6)
+  updated_at DateTime    @default(now()) @db.Timestamptz(6)
+  pontuacao  pontuacao[]
+}
+
+model plano_carreira {
+  id                 Int                  @id @default(autoincrement())
+  nome               String               @unique @db.VarChar
+  descricao          String?
+  versao             String?              @db.VarChar
+  publicado          Boolean              @default(false)
+  created_at         DateTime             @default(now()) @db.Timestamptz(6)
+  updated_at         DateTime             @default(now()) @db.Timestamptz(6)
+  colaborador_trilha colaborador_trilha[]
+}
+
+model colaborador_trilha {
+  id             Int            @id @default(autoincrement())
+  plano_id       Int
+  colaborador_id Int
+  data_inicio    DateTime       @db.Date
+  data_fim       DateTime?      @db.Date
+  status         String         @default("LIBERADO") @db.VarChar
+  created_at     DateTime       @default(now()) @db.Timestamptz(6)
+  updated_at     DateTime       @default(now()) @db.Timestamptz(6)
+  
+  colaborador    colaborador    @relation(fields: [colaborador_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_trilha_colaborador")
+  plano_carreira plano_carreira @relation(fields: [plano_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "fk_trilha_plano")
+
+  @@unique([plano_id, colaborador_id], map: "uq_trilha")
+}

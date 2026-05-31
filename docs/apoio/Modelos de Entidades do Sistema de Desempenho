@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CDA 2026 | Sistema de Desempenho</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; overflow-x: hidden; }
+        .page { display: none; }
+        .page.active { display: block; }
+        .nav-link.active { background: #f0f4ff; color: #4f46e5; }
+        #app-interface { display: none; } /* Escondido até o login */
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 min-h-screen">
+
+    <div id="login-screen" class="min-h-screen flex items-center justify-center px-4 bg-slate-50">
+        <div class="w-full max-w-md bg-white p-10 rounded-[2.5rem] shadow-xl shadow-slate-200/50 border border-slate-100">
+            <div class="mb-8 text-center">
+                <div class="inline-block font-black text-indigo-600 tracking-tighter text-4xl mb-2">CDA<span class="text-slate-300">.</span></div>
+                <p class="text-slate-400 font-bold text-sm uppercase tracking-widest">Performance Strategy 2026</p>
+            </div>
+
+            <form onsubmit="handleLogin(event)" class="space-y-5">
+                <div>
+                    <label class="block text-[10px] font-black uppercase text-slate-400 ml-1 mb-2">E-mail Corporativo</label>
+                    <input type="email" required border 
+                        class="w-full px-5 py-4 rounded-2xl bg-slate-50 border border-slate-100 focus:border-indigo-500 focus:bg-white outline-none transition-all text-sm font-medium" 
+                        placeholder="admin@cda2026.com.br" value="admin@cda2026.com.br">
+                </div>
+                <div class="mb-6">
+                    <label class="block text-[10px] font-black uppercase text-slate-400 ml-1 mb-2">Senha</label>
+                    <input type="password" required 
+                        class="w-full px-5 py-4 rounded-2xl bg-slate-50 border border-slate-100 focus:border-indigo-500 focus:bg-white outline-none transition-all text-sm font-medium" 
+                        placeholder="••••••••" value="123456">
+                </div>
+
+                <button type="submit" id="login-btn"
+                    class="w-full py-4 rounded-2xl bg-slate-900 text-white font-black text-sm hover:bg-indigo-600 shadow-lg shadow-indigo-100 transition-all active:scale-[0.98] flex items-center justify-center gap-2">
+                    Acessar Plataforma
+                </button>
+            </form>
+
+            <div class="mt-8 pt-8 border-t border-slate-50 text-center">
+                <p class="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">Ambiente de Demonstração Backend</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="app-interface" class="flex">
+        <aside class="hidden lg:flex w-72 h-screen sticky top-0 bg-white border-r border-slate-200 p-8 flex-col gap-10">
+            <div class="font-black text-indigo-600 tracking-tighter text-3xl">CDA<span class="text-slate-300">.</span></div>
+            
+            <nav class="flex flex-col gap-2 flex-1">
+                <p class="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-2">Principal</p>
+                <button onclick="showPage('dashboard')" class="nav-link active flex items-center gap-3 px-4 py-3 rounded-2xl font-bold text-sm transition-all w-full text-left">
+                    Dashboard
+                </button>
+                <button onclick="showPage('colaboradores')" class="nav-link flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-50 rounded-2xl font-bold text-sm transition-all w-full text-left">
+                    Colaboradores
+                </button>
+                <button onclick="showPage('ciclos')" class="nav-link flex items-center gap-3 px-4 py-3 text-slate-500 hover:bg-slate-50 rounded-2xl font-bold text-sm transition-all w-full text-left">
+                    Ciclos
+                </button>
+            </nav>
+
+            <div class="bg-indigo-50 rounded-3xl p-6 text-center border border-indigo-100">
+                <p class="text-[10px] font-black uppercase text-indigo-400 mb-1">Usuário Atual</p>
+                <p class="text-xs font-black text-indigo-900">Administrador</p>
+                <button onclick="location.reload()" class="mt-4 text-[9px] font-black uppercase text-slate-400 hover:text-rose-500 transition-colors">Sair do Sistema</button>
+            </div>
+        </aside>
+
+        <main class="flex-1 p-6 lg:p-12 max-w-7xl mx-auto">
+            
+            <div id="dashboard" class="page active">
+                <h1 class="text-3xl font-black text-slate-800 tracking-tight mb-10">Painel Estratégico</h1>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+                    <div class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
+                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Colaboradores</p>
+                        <h3 class="text-4xl font-black text-slate-800 mt-2">1,284</h3>
+                    </div>
+                    <div class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm">
+                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Aderência</p>
+                        <h3 class="text-4xl font-black text-emerald-500 mt-2">92%</h3>
+                    </div>
+                    <div class="bg-indigo-600 p-8 rounded-[2.5rem] shadow-xl text-white">
+                        <p class="text-[10px] font-black text-indigo-200 uppercase tracking-widest">Ciclo Ativo</p>
+                        <h3 class="text-2xl font-black mt-2">2026 - Q1</h3>
+                    </div>
+                </div>
+            </div>
+
+            <div id="colaboradores" class="page">
+                <h1 class="text-3xl font-black text-slate-800 mb-6">Colaboradores</h1>
+                <div class="bg-white rounded-[2.5rem] border border-slate-100 overflow-hidden shadow-sm">
+                    <table class="w-full text-left font-medium">
+                        <thead>
+                            <tr class="text-[10px] font-black text-slate-400 uppercase border-b border-slate-50 bg-slate-50/50">
+                                <th class="px-8 py-5">Nome</th>
+                                <th class="px-8 py-5">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-50">
+                            <tr><td class="px-8 py-6 font-bold">Ana Garcia</td><td class="px-8 py-6"><span class="bg-emerald-50 text-emerald-600 text-[10px] font-black px-3 py-1 rounded-full uppercase">Ativo</span></td></tr>
+                            <tr><td class="px-8 py-6 font-bold">Carlos Mendes</td><td class="px-8 py-6"><span class="bg-emerald-50 text-emerald-600 text-[10px] font-black px-3 py-1 rounded-full uppercase">Ativo</span></td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="ciclos" class="page">
+                <h1 class="text-3xl font-black text-slate-800 mb-6">Ciclos</h1>
+                <div class="bg-white p-10 rounded-[2.5rem] border-2 border-indigo-500 shadow-indigo-50 shadow-2xl">
+                    <h3 class="text-xl font-black text-slate-800">Ciclo Anual 2026</h3>
+                    <p class="text-sm text-slate-500 mt-2 italic font-medium">Pronto para migração PostgreSQL...</p>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        // Função de Login Simulado
+        function handleLogin(event) {
+            event.preventDefault();
+            const btn = document.getElementById('login-btn');
+            btn.innerHTML = 'Autenticando...';
+            btn.classList.add('opacity-70');
+
+            setTimeout(() => {
+                document.getElementById('login-screen').style.display = 'none';
+                document.getElementById('app-interface').style.display = 'flex';
+            }, 800);
+        }
+
+        // Navegação entre páginas
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+
+            document.querySelectorAll('.nav-link').forEach(l => {
+                l.classList.remove('active', 'text-indigo-600');
+                l.classList.add('text-slate-500');
+            });
+            event.currentTarget.classList.add('active', 'text-indigo-600');
+        }
+    </script>
+</body>
+</html>
