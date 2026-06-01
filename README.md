@@ -98,4 +98,4 @@ npm run build
 - O backend depende de PostgreSQL/Supabase configurado em `DATABASE_URL`.
 - A rota `/api/health` funciona mesmo sem testar dados do banco.
 - O login depende de usuário cadastrado na tabela `usuario` e senha compatível com o formato salvo no banco.
-- Se suas senhas no banco estiverem sem hash, ajuste temporariamente o login ou gere hashes com `bcryptjs`.
+- Se as senhas no banco estiverem sem hash, ajuste temporariamente o login ou gere hashes com `bcryptjs`.
