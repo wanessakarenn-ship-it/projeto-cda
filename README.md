@@ -97,5 +97,25 @@ npm run build
 
 - O backend depende de PostgreSQL/Supabase configurado em `DATABASE_URL`.
 - A rota `/api/health` funciona mesmo sem testar dados do banco.
-- O login depende de usuário cadastrado na tabela `usuario` e senha compatível com o formato salvo no banco.
-- Se as senhas no banco estiverem sem hash, ajuste temporariamente o login ou gere hashes com `bcryptjs`.
+- O login depende de usuário cadastrado na tabela `usuario` com a senha hash correspondente.
+- A semeadura do banco (`npm run prisma:seed`) foi atualizada para criptografar as senhas automaticamente com `bcryptjs`.
+
+## Usuários de Teste
+
+Para facilitar o teste de todos os fluxos e papéis do sistema (Administrador, Gestor e Colaborador), utilize as seguintes credenciais pré-configuradas no banco através do seed:
+
+### 1. Administrador (ADMIN)
+- **E-mail**: `admin@cda.com`
+- **Senha**: `cda123`
+- **Acesso**: Acesso irrestrito a configurações de ciclos de desempenho, metas globais, cadastro de competências, controle de usuários e configuração do Nine Box.
+
+### 2. Gestor (GESTOR)
+- **E-mail**: `gestor@cda.com`
+- **Senha**: `cda123`
+- **Acesso**: Permissões de acompanhamento de equipe, visualização e cálculo da matriz Nine Box, relatórios analíticos e avaliação de colaboradores subordinados.
+
+### 3. Colaborador (COLABORADOR)
+- **E-mail**: `colaborador@cda.com`
+- **Senha**: `cda123`
+- **Acesso**: Autoavaliação de desempenho, consulta e acompanhamento de metas individuais e visualização de feedbacks.
+

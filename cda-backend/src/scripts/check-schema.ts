@@ -51,7 +51,7 @@ async function main(): Promise<void> {
       console.log(`✅ OK: ${table}`);
 
       /**
-       * Validação crítica: usuario.senha_hash
+       * Validação crítica: usuario.senha
        */
       if (table === 'usuario') {
         const colRes = await pool.query(
@@ -60,17 +60,17 @@ async function main(): Promise<void> {
           FROM information_schema.columns
           WHERE table_schema = 'public'
             AND table_name = 'usuario'
-            AND column_name = 'senha_hash'
+            AND column_name = 'senha'
           `
         );
 
         if (colRes.rowCount && colRes.rowCount > 0) {
-          console.log('   ↳ 🔐 Coluna "senha_hash" validada.');
+          console.log('   ↳ 🔐 Coluna "senha" validada.');
         } else {
           console.log(
-            '   ↳ ❌ ERRO: Coluna "senha_hash" NÃO encontrada!'
+            '   ↳ ❌ ERRO: Coluna "senha" NÃO encontrada!'
           );
-          missing.push('usuario.senha_hash');
+          missing.push('usuario.senha');
         }
       }
     }
