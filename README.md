@@ -1,4 +1,4 @@
-# CDA — Projeto Corrigido e Organizado
+# Projeto CDA
 
 Este pacote contém o sistema CDA separado em duas aplicações:
 
