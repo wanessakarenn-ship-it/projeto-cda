@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "build": "tsc --noEmit",
+    "build": "prisma generate && tsc --noEmit",
     "start": "tsx src/server.ts",
     "test-db": "tsx src/scripts/test-db-connection.ts",
     "check-schema": "tsx src/scripts/check-schema.ts",
