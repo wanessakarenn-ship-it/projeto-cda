@@ -1,6 +1,6 @@
 import React from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { Search, Settings, MessageSquare } from 'lucide-react';
+import { Search, Settings, MessageSquare, Menu } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
 interface NavTab {
@@ -16,7 +16,11 @@ const NAV_TABS: NavTab[] = [
   { label: 'Administração', path: '/admin', roles: ['ADMIN'] },
 ];
 
-export const Header: React.FC = () => {
+interface HeaderProps {
+  onMenuToggle?: () => void;
+}
+
+export const Header: React.FC<HeaderProps> = ({ onMenuToggle }) => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -35,11 +39,24 @@ export const Header: React.FC = () => {
   );
 
   return (
-    <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 shrink-0">
-      {/* Navegação */}
-      <nav className="flex items-center gap-8 h-full">
-        <h2 className="text-lg font-bold text-slate-800 mr-4">Avaliações</h2>
+    <header className="h-16 bg-[#0B0F19]/80 border-b border-slate-800/80 backdrop-blur-md flex items-center justify-between px-4 md:px-8 shrink-0 relative z-40 text-slate-100">
+      
+      {/* Botão Hambúrguer para Mobile e Nome do App */}
+      <div className="flex items-center gap-3">
+        <button
+          type="button"
+          onClick={onMenuToggle}
+          className="p-2 -ml-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800/50 transition-colors block md:hidden"
+          title="Abrir menu"
+          aria-label="Abrir menu"
+        >
+          <Menu size={20} />
+        </button>
+        <h2 className="text-sm md:text-lg font-black text-white tracking-tight">CDA 2026</h2>
+      </div>
 
+      {/* Navegação (Oculta no celular, visível de md para cima) */}
+      <nav className="hidden md:flex items-center gap-8 h-full">
         <div className="flex gap-6 h-full">
           {visibleTabs.map(({ label, path }) => {
             const isActive =
@@ -53,10 +70,10 @@ export const Header: React.FC = () => {
                 type="button"
                 onClick={() => navigate(path)}
                 aria-current={isActive ? 'page' : undefined}
-                className={`text-[11px] font-bold uppercase tracking-wider h-full border-b-2 transition-all ${
+                className={`text-[11px] font-black uppercase tracking-wider h-full border-b-2 transition-all ${
                   isActive
-                    ? 'border-indigo-600 text-slate-900'
-                    : 'border-transparent text-slate-400 hover:text-slate-600'
+                    ? 'border-indigo-500 text-white'
+                    : 'border-transparent text-slate-400 hover:text-slate-200'
                 }`}
               >
                 {label}
@@ -101,18 +118,18 @@ export const Header: React.FC = () => {
         {/* Perfil */}
         <button
           type="button"
-          className="flex items-center gap-3 pl-6 border-l border-slate-100 hover:opacity-80 transition-opacity"
+          className="flex items-center gap-3 pl-6 border-l border-slate-800 hover:opacity-80 transition-opacity"
         >
           <div className="text-right hidden sm:block">
-            <p className="text-xs font-bold text-slate-800 leading-none">
+            <p className="text-xs font-bold text-slate-200 leading-none">
               {user?.nome ?? 'Usuário'}
             </p>
-            <p className="text-[10px] text-slate-400 font-medium uppercase mt-1">
+            <p className="text-[10px] text-slate-500 font-medium uppercase mt-1">
               {user?.perfil ?? 'COLABORADOR'}
             </p>
           </div>
 
-          <div className="w-8 h-8 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center text-xs font-black border border-indigo-100 shadow-sm">
+          <div className="w-8 h-8 rounded-full bg-indigo-500/10 text-indigo-400 flex items-center justify-center text-xs font-black border border-indigo-500/20 shadow-sm">
             {getInitials(user?.nome)}
           </div>
         </button>

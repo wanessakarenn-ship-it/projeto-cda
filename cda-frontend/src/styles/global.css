@@ -4,7 +4,7 @@
 
 @layer base {
   html, body {
-    @apply bg-slate-50 text-slate-900 antialiased h-full;
+    @apply bg-[#090D1A] text-[#F1F5F9] antialiased h-full;
     font-family: 'Inter', system-ui, -apple-system, sans-serif;
   }
 
@@ -14,16 +14,16 @@
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    @apply bg-slate-200 rounded-full hover:bg-slate-300;
+    @apply bg-slate-800 rounded-full hover:bg-slate-700;
   }
 }
 
 @layer components {
   .glass-card {
-    @apply bg-white border border-slate-200 shadow-sm rounded-3xl;
+    @apply bg-[#131A2C]/65 border border-slate-800/50 backdrop-blur-lg shadow-xl rounded-3xl text-white transition-all duration-300 hover:shadow-indigo-500/5;
   }
 
   .badge {
-    @apply inline-flex items-center text-[10px] font-bold px-2 py-0.5 rounded-full border uppercase tracking-wider;
+    @apply inline-flex items-center text-[10px] font-bold px-2 py-0.5 rounded-full border border-slate-700 uppercase tracking-wider;
   }
 }

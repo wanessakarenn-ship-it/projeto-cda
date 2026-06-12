@@ -49,9 +49,13 @@ class NineBoxRepository {
    */
   async findAll(filters: NineBoxFilters = {}): Promise<NineBox[]> {
     let query = `
-      SELECT nb.*
+      SELECT 
+        nb.*,
+        col.nome AS "colaboradorNome",
+        col.nome AS "colaborador_nome"
       FROM nine_box nb
       JOIN ciclo_colaborador cc ON nb.ciclo_colaborador_id = cc.id
+      JOIN colaborador col ON cc.colaborador_id = col.id
       WHERE 1=1
     `;
 
