@@ -35,15 +35,15 @@ export const ColaboradorDetalhePage: React.FC = () => {
       <nav className="flex items-center gap-4">
         <button 
           onClick={() => navigate(-1)}
-          className="p-2 rounded-xl bg-white border border-slate-200 text-slate-400 hover:text-indigo-600 hover:border-indigo-100 transition-all shadow-sm"
+          className="p-2 rounded-xl bg-slate-900/60 border border-slate-800 text-slate-500 hover:text-indigo-400 hover:border-indigo-500/30 transition-all shadow-sm"
         >
           <ArrowLeft size={20} />
         </button>
         <div>
-          <h1 className="text-xl font-black text-slate-800 tracking-tight">
+          <h1 className="text-3xl font-black text-white tracking-tight">
             Detalhe do Colaborador
           </h1>
-          <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
+          <p className="text-[10px] font-black text-slate-500 uppercase tracking-[0.2em]">
             ID do Sistema: {id}
           </p>
         </div>
@@ -59,9 +59,9 @@ export const ColaboradorDetalhePage: React.FC = () => {
             orgInfo={colaborador.orgInfo}
           />
           
-          <div className="p-6 bg-slate-900 rounded-[2rem] text-white overflow-hidden relative">
-            <Award className="absolute -right-4 -bottom-4 text-white/10" size={100} />
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">
+          <div className="p-6 bg-[#131A2C]/65 border border-slate-800/80 rounded-[2rem] text-slate-200 overflow-hidden relative">
+            <Award className="absolute -right-4 -bottom-4 text-white/5" size={100} />
+            <p className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-2">
               Análise de Promoção
             </p>
             <p className="text-sm font-medium leading-relaxed relative z-10">
@@ -80,13 +80,13 @@ export const ColaboradorDetalhePage: React.FC = () => {
             <SummaryCard label="Aderência" value={`${resumo.aderencia}%`} isPositive={resumo.aderencia >= 75} />
           </div>
 
-          <section className="bg-white border border-slate-200 rounded-[2rem] p-8 space-y-8 shadow-sm">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-6">
+          <section className="glass-card p-8 space-y-8 border border-slate-800/80">
+            <div className="flex items-center justify-between border-b border-slate-800/60 pb-6">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-indigo-50 rounded-lg text-indigo-600">
+                <div className="p-2 bg-indigo-500/10 text-indigo-400 rounded-lg">
                   <UserRound size={18} />
                 </div>
-                <h2 className="text-sm font-black text-slate-800 uppercase tracking-wider">
+                <h2 className="text-sm font-black text-slate-200 uppercase tracking-wider">
                   Desempenho por Competência
                 </h2>
               </div>

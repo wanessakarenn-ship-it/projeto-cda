@@ -58,14 +58,14 @@ export const AdminDashboardPage: React.FC = () => {
     <div className="space-y-10 animate-in fade-in duration-700">
       {/* Cabeçalho Estratégico */}
       <header className="flex flex-col gap-2">
-        <div className="flex items-center gap-3 text-indigo-600">
+        <div className="flex items-center gap-3 text-indigo-400">
           <Settings size={20} className="animate-spin-slow" />
           <span className="text-[10px] font-black uppercase tracking-[0.2em]">Painel de Controle</span>
         </div>
-        <h1 className="text-3xl font-black text-slate-900 tracking-tight">
+        <h1 className="text-3xl font-black text-white tracking-tight">
           Administração do Sistema
         </h1>
-        <p className="text-sm text-slate-500 max-w-2xl">
+        <p className="text-sm text-slate-400 max-w-2xl">
           Central de governança do CDA 2026. Gerencie a estrutura organizacional, 
           parâmetros de performance e ciclos avaliativos em um só lugar.
         </p>
@@ -106,7 +106,7 @@ export const AdminDashboardPage: React.FC = () => {
 
       {/* Grid de Navegação de Gestão */}
       <div className="space-y-6">
-        <h2 className="text-sm font-black text-slate-400 uppercase tracking-widest ml-1">
+        <h2 className="text-sm font-black text-indigo-400 uppercase tracking-widest ml-1">
           Módulos de Configuração
         </h2>
         
@@ -129,14 +129,14 @@ export const AdminDashboardPage: React.FC = () => {
             title="Importação em Massa"
             description="Atualização de estrutura organizacional e novos talentos via CSV."
             icon={<UploadCloud size={20} />}
-            onClick={() => navigate('/admin/importacao')}
+            onClick={() => navigate('/admin/importar')}
           />
 
           <ActionCard
             title="Matriz Nine Box"
             description="Customização de quadrantes, eixos de potencial e regras de enquadramento."
             icon={<Grid3X3 size={20} />}
-            onClick={() => navigate('/admin/ninebox-config')}
+            onClick={() => navigate('/admin/nine-box-config')}
           />
 
           <ActionCard
@@ -146,8 +146,8 @@ export const AdminDashboardPage: React.FC = () => {
             onClick={() => navigate('/admin/usuarios')}
           />
 
-          <div className="border-2 border-dashed border-slate-200 rounded-[2rem] p-6 flex items-center justify-center text-center group hover:border-indigo-200 transition-colors">
-             <p className="text-xs font-bold text-slate-400 group-hover:text-indigo-400 transition-colors cursor-default">
+          <div className="border-2 border-dashed border-slate-800/80 rounded-[2rem] p-6 flex items-center justify-center text-center group hover:border-indigo-500/50 transition-colors">
+             <p className="text-xs font-bold text-slate-500 group-hover:text-indigo-400 transition-colors cursor-default">
                Novos módulos de Auditoria <br/> em breve
              </p>
           </div>
@@ -178,26 +178,26 @@ const ActionCard: React.FC<ActionCardProps> = ({
     <button
       type="button"
       onClick={onClick}
-      className="group bg-white border border-slate-200 rounded-[2rem] p-8 text-left hover:border-indigo-500 hover:shadow-xl hover:shadow-indigo-50/50 transition-all duration-300 relative overflow-hidden"
+      className="group bg-[#131A2C]/65 border border-slate-800/80 rounded-[2rem] p-8 text-left hover:border-indigo-500 hover:shadow-xl hover:shadow-indigo-500/5 transition-all duration-300 relative overflow-hidden"
     >
       <div className="relative z-10 flex flex-col h-full justify-between gap-6">
-        <div className="w-12 h-12 rounded-2xl bg-slate-50 text-slate-400 flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white transition-all duration-500">
+        <div className="w-12 h-12 rounded-2xl bg-slate-800/50 border border-slate-700/30 text-indigo-400 flex items-center justify-center group-hover:bg-indigo-600 group-hover:text-white group-hover:border-indigo-600 transition-all duration-500">
           {icon}
         </div>
         
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <h3 className="text-base font-black text-slate-800 tracking-tight">
+            <h3 className="text-base font-black text-slate-200 tracking-tight">
               {title}
             </h3>
-            <ChevronRight size={18} className="text-slate-300 group-hover:text-indigo-500 group-hover:translate-x-1 transition-all" />
+            <ChevronRight size={18} className="text-slate-500 group-hover:text-indigo-400 group-hover:translate-x-1 transition-all" />
           </div>
-          <p className="text-xs text-slate-500 leading-relaxed pr-4">
+          <p className="text-xs text-slate-400 leading-relaxed pr-4">
             {description}
           </p>
         </div>
       </div>
-      <div className="absolute -right-4 -bottom-4 w-24 h-24 bg-slate-50 rounded-full group-hover:bg-indigo-50 transition-colors duration-500" />
+      <div className="absolute -right-4 -bottom-4 w-24 h-24 bg-slate-800/20 rounded-full group-hover:bg-indigo-500/5 transition-colors duration-500" />
     </button>
   );
 };

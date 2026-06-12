@@ -27,14 +27,14 @@ export const CompetenciaRow: React.FC<CompetenciaRowProps> = ({
       : 'bg-rose-400';
 
   return (
-    <div className="group flex items-center justify-between p-4 border-b border-slate-100 last:border-0 hover:bg-slate-50 transition-colors">
+    <div className="group flex items-center justify-between p-5 border-b border-slate-800/60 last:border-0 hover:bg-[#131A2C]/35 transition-colors text-left">
       {/* Lado esquerdo */}
       <div className="flex items-center gap-3 w-1/3">
-        <span className="text-[10px] font-black text-slate-300 tracking-tight uppercase w-10">
+        <span className="text-[10px] font-black text-slate-500 tracking-wider uppercase w-12 shrink-0">
           ⚖️ {weight}
         </span>
 
-        <span className="text-sm font-semibold text-slate-700 truncate">
+        <span className="text-sm font-semibold text-slate-200 truncate">
           {label}
         </span>
 
@@ -42,7 +42,7 @@ export const CompetenciaRow: React.FC<CompetenciaRowProps> = ({
           type="button"
           aria-label="Ver detalhes da competência"
           title="Ver detalhes"
-          className="text-indigo-300 opacity-0 group-hover:opacity-100 transition-opacity"
+          className="text-indigo-400 opacity-0 group-hover:opacity-100 transition-opacity ml-1"
         >
           ⓘ
         </button>
@@ -50,11 +50,11 @@ export const CompetenciaRow: React.FC<CompetenciaRowProps> = ({
 
       {/* Barra de progresso */}
       <div className="flex items-center gap-6 flex-1">
-        <span className="text-xs font-bold text-slate-500 w-10 text-right">
+        <span className="text-xs font-bold text-slate-400 w-10 text-right">
           {safeScore}%
         </span>
 
-        <div className="flex-1 h-1.5 bg-slate-100 rounded-full relative">
+        <div className="flex-1 h-1.5 bg-slate-950 rounded-full relative">
           {/* Preenchimento */}
           <div
             className={`h-full ${barColor} rounded-full transition-all duration-700`}
@@ -63,7 +63,7 @@ export const CompetenciaRow: React.FC<CompetenciaRowProps> = ({
 
           {/* Marcador de meta */}
           <div
-            className="absolute top-[-4px] h-3.5 w-[2px] bg-slate-900 rounded-full"
+            className="absolute top-[-4px] h-3.5 w-[2px] bg-slate-400 rounded-full"
             style={{ left: `${safeTarget}%` }}
             aria-label="Meta"
             title={`Meta: ${safeTarget}%`}
@@ -73,7 +73,7 @@ export const CompetenciaRow: React.FC<CompetenciaRowProps> = ({
 
       {/* Lado direito */}
       <div className="flex items-center gap-3 ml-6">
-        <div className="w-8 h-8 rounded-lg bg-emerald-50 border border-emerald-100 flex items-center justify-center text-emerald-600 font-black text-xs">
+        <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 font-black text-xs">
           {level}
         </div>
 
@@ -81,7 +81,7 @@ export const CompetenciaRow: React.FC<CompetenciaRowProps> = ({
           type="button"
           aria-label="Ver comentários"
           title="Comentários"
-          className="text-slate-300 hover:text-slate-600 transition-colors"
+          className="text-slate-500 hover:text-slate-300 transition-colors"
         >
           💬
         </button>
@@ -90,7 +90,7 @@ export const CompetenciaRow: React.FC<CompetenciaRowProps> = ({
           type="button"
           aria-label="Expandir detalhes"
           title="Expandir"
-          className="text-slate-300 hover:text-slate-600 transition-colors"
+          className="text-slate-500 hover:text-slate-300 transition-colors"
         >
           ⌄
         </button>

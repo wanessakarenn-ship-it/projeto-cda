@@ -146,63 +146,67 @@ export const NineBoxPage: React.FC = () => {
 
       {/* Grid Nine Box (3x3) - Visível no desktop ou se selecionado no mobile */}
       <div className={`w-full overflow-x-auto custom-scrollbar ${viewMode === 'list' ? 'hidden md:block' : 'block'}`}>
-        <section className="relative pl-14 pb-14 pt-4 pr-4 min-w-[850px] md:min-w-0 group">
-          {/* Rótulos de Eixo */}
-          <div className="absolute left-2 top-1/2 -translate-y-1/2 -rotate-90 origin-center text-[10px] font-black uppercase tracking-[0.3em] text-indigo-400 whitespace-nowrap">
+        <div className="min-w-[850px] flex gap-4 pt-4 pr-4 pb-4">
+          {/* Eixo Y - Mérito (Performance) */}
+          <div className="flex items-center justify-center text-[10px] font-black uppercase tracking-[0.3em] text-indigo-400 [writing-mode:vertical-lr] rotate-180 select-none border-r border-slate-800/40 pr-3 whitespace-nowrap">
             Eixo Mérito (Performance)
           </div>
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 text-[10px] font-black uppercase tracking-[0.3em] text-indigo-400 whitespace-nowrap">
-            Eixo Potencial
-          </div>
 
-          <div className="grid grid-cols-3 gap-4">
-            {matrizLayout.map((quadrante) => {
-              const pessoas = colaboradores.filter((c) => c.quadrante === quadrante);
-              const style = getQuadranteStyle(quadrante);
+          <div className="flex-1 space-y-6">
+            <div className="grid grid-cols-3 gap-4">
+              {matrizLayout.map((quadrante) => {
+                const pessoas = colaboradores.filter((c) => c.quadrante === quadrante);
+                const style = getQuadranteStyle(quadrante);
 
-              return (
-                <div
-                  key={quadrante}
-                  className={`rounded-[2rem] border-2 p-6 min-h-[220px] transition-all flex flex-col ${style}`}
-                >
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-[10px] font-black uppercase tracking-widest opacity-80">
-                      {quadrante}
-                    </h3>
-                    <div className="w-5 h-5 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-[10px] font-bold text-white">
-                      {pessoas.length}
+                return (
+                  <div
+                    key={quadrante}
+                    className={`rounded-[2rem] border-2 p-6 min-h-[220px] transition-all flex flex-col ${style}`}
+                  >
+                    <div className="flex items-center justify-between mb-4">
+                      <h3 className="text-[10px] font-black uppercase tracking-widest opacity-80">
+                        {quadrante}
+                      </h3>
+                      <div className="w-5 h-5 rounded-full bg-white/10 border border-white/20 flex items-center justify-center text-[10px] font-bold text-white">
+                        {pessoas.length}
+                      </div>
                     </div>
-                  </div>
 
-                  {pessoas.length === 0 ? (
-                    <div className="flex-1 flex items-center justify-center">
-                      <span className="text-[10px] uppercase font-bold opacity-30 tracking-tighter italic">Vazio</span>
-                    </div>
-                  ) : (
-                    <ul className="space-y-2">
-                      {pessoas.map((pessoa) => (
-                        <li
-                          key={pessoa.id}
-                          className="flex flex-col bg-[#0B0F19]/60 backdrop-blur-sm border border-slate-800/60 rounded-xl px-4 py-3 shadow-sm hover:translate-x-1 hover:border-indigo-500/50 transition-all cursor-default"
-                        >
-                          <span className="text-xs font-black text-slate-200 leading-none">
-                            {pessoa.nome}
-                          </span>
-                          <div className="flex items-center gap-2 mt-2">
-                            <div className="h-1 flex-1 bg-slate-950 rounded-full overflow-hidden">
-                               <div className="h-full bg-gradient-to-r from-indigo-500 to-purple-500" style={{ width: `${pessoa.merito}%` }} />
+                    {pessoas.length === 0 ? (
+                      <div className="flex-1 flex items-center justify-center">
+                        <span className="text-[10px] uppercase font-bold opacity-30 tracking-tighter italic">Vazio</span>
+                      </div>
+                    ) : (
+                      <ul className="space-y-2">
+                        {pessoas.map((pessoa) => (
+                          <li
+                            key={pessoa.id}
+                            className="flex flex-col bg-[#0B0F19]/60 backdrop-blur-sm border border-slate-800/60 rounded-xl px-4 py-3 shadow-sm hover:translate-x-1 hover:border-indigo-500/50 transition-all cursor-default"
+                          >
+                            <span className="text-xs font-black text-slate-200 leading-none">
+                              {pessoa.nome}
+                            </span>
+                            <div className="flex items-center gap-2 mt-2">
+                              <div className="h-1 flex-1 bg-slate-950 rounded-full overflow-hidden">
+                                 <div className="h-full bg-gradient-to-r from-indigo-500 to-purple-500" style={{ width: `${pessoa.merito}%` }} />
+                              </div>
+                              <span className="text-[9px] font-bold text-indigo-300">{pessoa.merito}%</span>
                             </div>
-                            <span className="text-[9px] font-bold text-indigo-300">{pessoa.merito}%</span>
-                          </div>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-              );
-            })}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Eixo X - Potencial */}
+            <div className="text-center text-[10px] font-black uppercase tracking-[0.3em] text-indigo-400 select-none pt-2">
+              Eixo Potencial
+            </div>
           </div>
-        </section>
+        </div>
       </div>
 
       {/* Lista Móvel Stacked - Visível apenas se selecionada no mobile */}

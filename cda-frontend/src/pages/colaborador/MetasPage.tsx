@@ -42,21 +42,21 @@ export const MetasPage: React.FC = () => {
   const taxaConclusao = Math.round((metasConcluidas / mockMetas.length) * 100);
 
   return (
-    <div className="max-w-4xl mx-auto space-y-10 animate-in fade-in duration-500">
+    <div className="max-w-4xl mx-auto space-y-10 animate-in fade-in duration-500 text-left">
       {/* Título e Contexto */}
       <header className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-black text-slate-800 tracking-tight">
+          <h1 className="text-3xl font-black text-white tracking-tight">
             Metas do Ciclo
           </h1>
-          <p className="text-sm text-slate-400 mt-1">
-            Olá, <span className="font-bold text-slate-600">{user?.nome}</span> • 
+          <p className="text-sm text-slate-400 font-medium mt-1">
+            Olá, <span className="font-bold text-slate-200">{user?.nome}</span> • 
             Ciclo {avaliacao.ciclo}
           </p>
         </div>
         
         {/* Badge de Perfil vindo do Backend */}
-        <div className="hidden md:block px-4 py-1.5 bg-slate-100 rounded-lg border border-slate-200 text-[10px] font-black text-slate-500 uppercase tracking-widest">
+        <div className="hidden md:block px-4 py-1.5 bg-indigo-500/10 border border-indigo-500/20 rounded-lg text-[10px] font-black text-indigo-400 uppercase tracking-widest">
           Nível de Acesso: {user?.perfil}
         </div>
       </header>
@@ -66,7 +66,7 @@ export const MetasPage: React.FC = () => {
         <SummaryCard
           value={mockMetas.length}
           label="Metas Definidas"
-          icon={<Target size={22} className="text-indigo-500" />}
+          icon={<Target size={22} className="text-indigo-400" />}
         />
 
         <SummaryCard
@@ -85,12 +85,12 @@ export const MetasPage: React.FC = () => {
       </section>
 
       {/* Lista de Metas */}
-      <section className="bg-white rounded-3xl border border-slate-200 shadow-sm p-8 transition-all hover:shadow-md">
+      <section className="glass-card p-8 border border-slate-800/80 transition-all hover:shadow-md">
         <div className="flex items-center justify-between mb-8">
-          <h2 className="text-lg font-black text-slate-800">
+          <h2 className="text-lg font-black text-slate-200">
             Detalhamento das Metas
           </h2>
-          <span className="text-[10px] font-bold text-slate-400 bg-slate-50 px-2 py-1 rounded">
+          <span className="text-[10px] font-black text-slate-400 bg-slate-900/60 border border-slate-800 px-3 py-1 rounded-xl">
             {avaliacao.status.toUpperCase()}
           </span>
         </div>
@@ -109,10 +109,10 @@ export const MetasPage: React.FC = () => {
                 
                 <div className="flex items-center gap-2 mt-2">
                   <div className={`w-1.5 h-1.5 rounded-full ${isAlcancada ? 'bg-emerald-500' : 'bg-amber-400 animate-pulse'}`} />
-                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-slate-500">
                     Status: {isAlcancada ? 
-                      <span className="text-emerald-600">Meta Alcançada</span> : 
-                      <span className="text-amber-600">Em andamento</span>
+                      <span className="text-emerald-400">Meta Alcançada</span> : 
+                      <span className="text-amber-400">Em andamento</span>
                     }
                   </p>
                 </div>
@@ -123,9 +123,9 @@ export const MetasPage: React.FC = () => {
       </section>
 
       {/* Rodapé de Ajuda */}
-      <footer className="text-center p-6 border-t border-dashed border-slate-200">
-        <p className="text-xs text-slate-400">
-          Dúvidas sobre a definição de metas? <a href="#" className="text-indigo-500 font-bold hover:underline">Consulte o Guia de OKRs CDA</a>
+      <footer className="text-center p-6 border-t border-dashed border-slate-800/60">
+        <p className="text-xs text-slate-500">
+          Dúvidas sobre a definição de metas? <a href="#" className="text-indigo-400 font-bold hover:text-indigo-300 hover:underline">Consulte o Guia de OKRs CDA</a>
         </p>
       </footer>
     </div>

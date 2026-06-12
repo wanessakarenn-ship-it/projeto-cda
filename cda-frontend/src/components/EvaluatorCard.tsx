@@ -21,8 +21,8 @@ export const EvaluatorCard: React.FC<EvaluatorCardProps> = ({
   const isPendente = status === 'PENDENTE';
 
   return (
-    <div className="flex flex-col gap-3 min-w-[200px]">
-      <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
+    <div className="flex flex-col gap-3 min-w-[200px] text-left">
+      <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
         {isMain ? 'Avaliador principal' : 'Avaliadores de apoio'}
       </p>
 
@@ -32,10 +32,10 @@ export const EvaluatorCard: React.FC<EvaluatorCardProps> = ({
           <img
             src={avatar}
             alt={`Avatar de ${name}`}
-            className="w-8 h-8 rounded-full border border-slate-100"
+            className="w-8 h-8 rounded-full border border-slate-800"
             loading="lazy"
           />
-          <span className="text-sm font-bold text-slate-700 truncate max-w-[120px]">
+          <span className="text-sm font-bold text-slate-200 truncate max-w-[120px]">
             {name}
           </span>
         </div>
@@ -51,7 +51,7 @@ export const EvaluatorCard: React.FC<EvaluatorCardProps> = ({
 
             <span
               className={`text-[11px] font-bold ${
-                isPendente ? 'text-slate-400' : 'text-emerald-500'
+                isPendente ? 'text-slate-400' : 'text-emerald-400'
               }`}
             >
               {isPendente ? 'Pendente' : 'Realizada'}

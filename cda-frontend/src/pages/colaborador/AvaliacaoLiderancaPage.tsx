@@ -38,80 +38,85 @@ export function AvaliacaoLideranca() {
   };
 
   return (
-    <div className="p-6 max-w-2xl mx-auto bg-white rounded-xl shadow-sm border border-gray-100">
-      <h1 className="text-2xl font-bold text-gray-800">Avaliar minha Liderança</h1>
-      <p className="text-gray-600 mb-8">
-        Sua avaliação é fundamental para o desenvolvimento dos nossos gestores e da cultura da empresa.
-      </p>
+    <div className="max-w-2xl mx-auto space-y-6 text-left">
+      <div className="glass-card p-8 border border-slate-800/80">
+        <h1 className="text-3xl font-black text-white tracking-tight">Avaliar minha Liderança</h1>
+        <p className="text-sm text-slate-400 mt-2 mb-8">
+          Sua avaliação é fundamental para o desenvolvimento dos nossos gestores e da cultura da empresa.
+        </p>
 
-      <div className="space-y-6">
-        {/* Avaliação de Suporte */}
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
-            O quanto seu gestor te dá suporte no dia a dia? (1 a 5)
-          </label>
-          <div className="flex gap-4">
-            {[1, 2, 3, 4, 5].map((num) => (
-              <button
-                key={num}
-                onClick={() => setFeedback({ ...feedback, suporte: num })}
-                className={`w-10 h-10 rounded-full border ${
-                  feedback.suporte === num 
-                  ? 'bg-indigo-600 text-white border-indigo-600' 
-                  : 'bg-white text-gray-600 border-gray-300 hover:border-indigo-400'
-                } transition-all`}
-              >
-                {num}
-              </button>
-            ))}
+        <div className="space-y-6">
+          {/* Avaliação de Suporte */}
+          <div>
+            <label className="block text-[10px] font-black uppercase tracking-wider text-slate-400 mb-3">
+              O quanto seu gestor te dá suporte no dia a dia? (1 a 5)
+            </label>
+            <div className="flex gap-4">
+              {[1, 2, 3, 4, 5].map((num) => (
+                <button
+                  key={num}
+                  type="button"
+                  onClick={() => setFeedback({ ...feedback, suporte: num })}
+                  className={`w-10 h-10 rounded-full border text-xs font-black transition-all ${
+                    feedback.suporte === num 
+                    ? 'bg-indigo-600 text-white border-indigo-600 shadow-lg shadow-indigo-500/20' 
+                    : 'bg-slate-900 border-slate-800 text-slate-400 hover:border-indigo-500/50 hover:bg-[#131A2C]/60'
+                  }`}
+                >
+                  {num}
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
 
-        {/* Avaliação de Clareza */}
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
-            As metas e expectativas são passadas com clareza? (1 a 5)
-          </label>
-          <div className="flex gap-4">
-            {[1, 2, 3, 4, 5].map((num) => (
-              <button
-                key={num}
-                onClick={() => setFeedback({ ...feedback, clareza: num })}
-                className={`w-10 h-10 rounded-full border ${
-                  feedback.clareza === num 
-                  ? 'bg-indigo-600 text-white border-indigo-600' 
-                  : 'bg-white text-gray-600 border-gray-300 hover:border-indigo-400'
-                } transition-all`}
-              >
-                {num}
-              </button>
-            ))}
+          {/* Avaliação de Clareza */}
+          <div>
+            <label className="block text-[10px] font-black uppercase tracking-wider text-slate-400 mb-3">
+              As metas e expectativas são passadas com clareza? (1 a 5)
+            </label>
+            <div className="flex gap-4">
+              {[1, 2, 3, 4, 5].map((num) => (
+                <button
+                  key={num}
+                  type="button"
+                  onClick={() => setFeedback({ ...feedback, clareza: num })}
+                  className={`w-10 h-10 rounded-full border text-xs font-black transition-all ${
+                    feedback.clareza === num 
+                    ? 'bg-indigo-600 text-white border-indigo-600 shadow-lg shadow-indigo-500/20' 
+                    : 'bg-slate-900 border-slate-800 text-slate-400 hover:border-indigo-500/50 hover:bg-[#131A2C]/60'
+                  }`}
+                >
+                  {num}
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
 
-        {/* Comentário Aberto */}
-        <div>
-          <label className="block text-sm font-semibold text-gray-700 mb-2">
-            Comentários adicionais (Opcional)
-          </label>
-          <textarea 
-            className="w-full border border-gray-300 rounded-lg p-3 focus:ring-2 focus:ring-indigo-500 outline-none transition-all" 
-            rows={4}
-            placeholder="O que seu gestor poderia fazer melhor?"
-            value={feedback.comentario}
-            onChange={e => setFeedback({...feedback, comentario: e.target.value})}
-          />
-        </div>
+          {/* Comentário Aberto */}
+          <div>
+            <label className="block text-[10px] font-black uppercase tracking-wider text-slate-400 mb-2">
+              Comentários adicionais (Opcional)
+            </label>
+            <textarea 
+              className="w-full rounded-xl border border-slate-800 bg-slate-900/60 p-4 text-xs font-medium text-slate-200 focus:border-indigo-500 outline-none transition-all resize-none" 
+              rows={4}
+              placeholder="O que seu gestor poderia fazer melhor?"
+              value={feedback.comentario}
+              onChange={e => setFeedback({...feedback, comentario: e.target.value})}
+            />
+          </div>
 
-        <button 
-          onClick={enviarFeedback} 
-          disabled={enviando}
-          className={`w-full mt-4 py-3 rounded-lg font-bold text-white transition-all ${
-            enviando ? 'bg-gray-400 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700 shadow-md'
-          }`}
-        >
-          {enviando ? 'Enviando...' : 'Enviar Feedback'}
-        </button>
+          <button 
+            type="button"
+            onClick={enviarFeedback} 
+            disabled={enviando}
+            className={`w-full py-3.5 rounded-xl font-black uppercase tracking-widest text-xs text-white transition-all shadow-xl flex items-center justify-center gap-2 ${
+              enviando ? 'bg-slate-800 text-slate-500 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-700 shadow-indigo-500/10 active:scale-95'
+            }`}
+          >
+            {enviando ? 'Enviando...' : 'Enviar Feedback'}
+          </button>
+        </div>
       </div>
     </div>
   );

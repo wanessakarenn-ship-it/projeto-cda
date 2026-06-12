@@ -65,21 +65,21 @@ export const NineBoxConfigPage: React.FC = () => {
   if (loading) {
     return (
       <div className="py-24 flex flex-col items-center justify-center gap-4 text-slate-400">
-        <Loader2 className="animate-spin text-indigo-600" size={40} />
+        <Loader2 className="animate-spin text-indigo-500" size={40} />
         <p className="text-xs font-black uppercase tracking-widest">Renderizando Matriz de Talentos...</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500">
+    <div className="space-y-8 animate-in fade-in duration-500 text-left">
       {/* Cabeçalho */}
       <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-black text-slate-900 tracking-tight">
+          <h1 className="text-3xl font-black text-white tracking-tight">
             Configuração da Nine Box
           </h1>
-          <p className="text-sm text-slate-500 mt-1">
+          <p className="text-sm text-slate-400 font-medium mt-1">
             Personalize os nomes, definições e cores dos 9 quadrantes estratégicos.
           </p>
         </div>
@@ -88,7 +88,7 @@ export const NineBoxConfigPage: React.FC = () => {
           type="button"
           onClick={handleSalvar}
           disabled={saving}
-          className="flex items-center justify-center gap-2 px-8 py-4 rounded-2xl bg-indigo-600 text-white text-sm font-bold hover:bg-indigo-500 active:scale-95 transition-all shadow-lg shadow-indigo-100 disabled:opacity-50"
+          className="flex items-center justify-center gap-2 px-8 py-4 rounded-[1.25rem] bg-indigo-600 text-white text-sm font-black uppercase tracking-widest hover:bg-indigo-500 active:scale-95 transition-all shadow-xl shadow-indigo-500/10 disabled:opacity-50 shrink-0"
         >
           {saving ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
           {showSuccess ? 'Configurações Salvas!' : 'Salvar Matriz'}
@@ -96,24 +96,22 @@ export const NineBoxConfigPage: React.FC = () => {
       </header>
 
       {/* Alerta Informativo */}
-      <div className="bg-indigo-50 border border-indigo-100 rounded-3xl p-5 flex gap-4 items-center">
-        <div className="bg-white p-2 rounded-xl shadow-sm text-indigo-600">
+      <div className="bg-indigo-500/10 border border-indigo-500/20 rounded-[2rem] p-5 flex gap-4 items-center">
+        <div className="bg-slate-900/40 border border-slate-800 p-2 rounded-xl text-indigo-400">
           <Info size={20} />
         </div>
-        <p className="text-xs text-indigo-800 leading-relaxed font-medium">
+        <p className="text-xs text-indigo-300 leading-relaxed font-bold uppercase">
           A matriz correlaciona <b>Potencial (Eixo X)</b> e <b>Desempenho (Eixo Y)</b>. 
           As alterações afetam diretamente os relatórios de sucessão de 2026.
         </p>
       </div>
-
-      
 
       {/* Grid de Quadrantes */}
       <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
         {configuracoes.map((item) => (
           <div
             key={item.id}
-            className="group bg-white border border-slate-200 rounded-[2.5rem] p-6 space-y-6 hover:border-indigo-300 hover:shadow-xl hover:shadow-slate-200/40 transition-all duration-300"
+            className="group glass-card p-6 space-y-6 hover:border-indigo-500 hover:shadow-xl hover:shadow-indigo-500/5 transition-all duration-300"
           >
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-4">
@@ -128,16 +126,16 @@ export const NineBoxConfigPage: React.FC = () => {
                 </div>
 
                 <div>
-                  <span className="text-[9px] font-black uppercase tracking-widest text-slate-400">
+                  <span className="text-[9px] font-black uppercase tracking-widest text-slate-500">
                     Posição {item.posicao_x}x{item.posicao_y}
                   </span>
-                  <h3 className="text-base font-black text-slate-900 leading-none">
+                  <h3 className="text-base font-black text-slate-200 leading-none">
                     {item.nome_quadrante || 'Sem Nome'}
                   </h3>
                 </div>
               </div>
 
-              <div className="relative w-8 h-8 rounded-lg border-2 border-slate-100 overflow-hidden shadow-sm">
+              <div className="relative w-8 h-8 rounded-lg border-2 border-slate-800 overflow-hidden shadow-sm">
                 <input
                   type="color"
                   value={item.cor}
@@ -154,7 +152,7 @@ export const NineBoxConfigPage: React.FC = () => {
                   type="text"
                   value={item.nome_quadrante}
                   onChange={(e) => handleChange(item.id, 'nome_quadrante', e.target.value)}
-                  className="w-full rounded-xl border border-slate-100 bg-slate-50/50 px-4 py-2.5 text-xs font-bold text-slate-700 focus:border-indigo-500 outline-none transition-all"
+                  className="w-full rounded-xl border border-slate-800 bg-slate-900/60 px-4 py-2.5 text-xs font-bold text-slate-200 focus:border-indigo-500 outline-none transition-all"
                 />
               </div>
 
@@ -164,7 +162,7 @@ export const NineBoxConfigPage: React.FC = () => {
                   rows={3}
                   value={item.descricao}
                   onChange={(e) => handleChange(item.id, 'descricao', e.target.value)}
-                  className="w-full rounded-xl border border-slate-100 bg-slate-50/50 px-4 py-2.5 text-xs font-medium text-slate-600 focus:border-indigo-500 outline-none transition-all resize-none"
+                  className="w-full rounded-xl border border-slate-800 bg-slate-900/60 px-4 py-2.5 text-xs font-medium text-slate-300 focus:border-indigo-500 outline-none transition-all resize-none"
                 />
               </div>
             </div>
@@ -173,7 +171,7 @@ export const NineBoxConfigPage: React.FC = () => {
       </div>
 
       {showSuccess && (
-        <div className="fixed bottom-8 right-8 flex items-center gap-3 bg-slate-900 text-white px-6 py-4 rounded-2xl shadow-2xl animate-in slide-in-from-right-10">
+        <div className="fixed bottom-8 right-8 flex items-center gap-3 bg-slate-900 border border-slate-800 text-white px-6 py-4 rounded-2xl shadow-2xl animate-in slide-in-from-right-10">
           <CheckCircle className="text-emerald-400" size={20} />
           <span className="text-sm font-bold uppercase tracking-tight">Matriz atualizada com sucesso!</span>
         </div>

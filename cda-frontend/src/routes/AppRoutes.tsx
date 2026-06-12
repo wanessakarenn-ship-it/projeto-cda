@@ -29,6 +29,7 @@ import { ImportacaoColaboradoresPage } from '../pages/admin/ImportacaoColaborado
 import { NineBoxConfigPage } from '../pages/admin/NineBoxConfigPage';
 import { UsuariosPage } from '../pages/admin/UsuariosPage';
 import { CompetenciasPage } from '../pages/admin/CompetenciasPage';
+import { CriarUsuario } from '../pages/admin/CriarUsuarioPage';
 
 // --- COMPONENTES AUXILIARES ---
 
@@ -45,10 +46,10 @@ const PrivateRoute = ({ allowedRoles }: PrivateRouteProps) => {
 
   if (loading) {
     return (
-      <div className="h-screen w-full flex items-center justify-center bg-slate-50">
+      <div className="h-screen w-full flex items-center justify-center bg-[#090D1A]">
         <div className="flex flex-col items-center gap-2">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
-          <span className="text-xs text-slate-500 font-medium">Carregando permissões...</span>
+          <span className="text-xs text-slate-400 font-medium">Carregando permissões...</span>
         </div>
       </div>
     );
@@ -105,6 +106,7 @@ export const AppRoutes = () => {
             <Route path="importar" element={<ImportacaoColaboradoresPage />} />
             <Route path="competencias" element={<CompetenciasPage />} />
             <Route path="usuarios" element={<UsuariosPage />} />
+            <Route path="usuarios/novo" element={<CriarUsuario />} />
             <Route path="nine-box-config" element={<NineBoxConfigPage />} />
           </Route>
         </Route>

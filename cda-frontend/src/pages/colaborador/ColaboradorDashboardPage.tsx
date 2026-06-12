@@ -26,7 +26,7 @@ const ColaboradorDashboardPage: React.FC = () => {
   const carreira = useCarreira(performance.scoreFinal);
 
   return (
-    <div className="grid grid-cols-12 gap-8 animate-in fade-in duration-500">
+    <div className="grid grid-cols-12 gap-8 animate-in fade-in duration-500 text-left">
       
       {/* COLUNA ESQUERDA: Perfil e KPIs Rápidos */}
       <aside className="col-span-12 lg:col-span-4 space-y-6">
@@ -38,7 +38,7 @@ const ColaboradorDashboardPage: React.FC = () => {
 
         <div className="grid grid-cols-1 gap-4">
           <SummaryCard
-            value={`${performance.scoreFinal}%`} // 5. Usa score calculado pelo hook
+            value={`${performance.scoreFinal}%`} // 5. Usa score calculated pelo hook
             label="Resultado Final"
             subtitle={carreira.mensagem}
             icon={<ShieldCheck size={22} />}
@@ -66,26 +66,26 @@ const ColaboradorDashboardPage: React.FC = () => {
       <main className="col-span-12 lg:col-span-8 space-y-8">
         <header className="flex items-center justify-between">
           <div>
-            <h2 className="text-xl font-black text-slate-800 tracking-tight">
+            <h2 className="text-3xl font-black text-white tracking-tight">
               Meu Desempenho
             </h2>
-            <p className="text-xs text-slate-400 mt-1">
+            <p className="text-sm text-slate-400 font-medium mt-1">
               Ciclo {avaliacao.ciclo} • Status: {avaliacao.status}
             </p>
           </div>
 
           <div
-            className={`px-4 py-2 rounded-full text-xs font-bold shadow-sm transition-all ${performance.statusBg} ${performance.statusCor}`}
+            className="px-4 py-2 rounded-xl text-xs font-black uppercase border bg-indigo-500/10 border-indigo-500/25 text-indigo-400 shadow-xl shadow-indigo-500/5"
           >
             Score Final {performance.scoreFinal}%
           </div>
         </header>
 
         {/* Seção de Barras de Progresso */}
-        <section className="bg-white rounded-3xl border border-slate-200 shadow-sm p-8 space-y-8">
+        <section className="glass-card border border-slate-800/80 p-8 space-y-8">
           <div className="space-y-1">
-            <h3 className="text-sm font-bold text-slate-700">Progresso dos Indicadores</h3>
-            <p className="text-xs text-slate-400">Acompanhamento real em relação às metas do ciclo.</p>
+            <h3 className="text-sm font-black text-slate-200 uppercase tracking-wider">Progresso dos Indicadores</h3>
+            <p className="text-xs text-slate-500 font-bold uppercase">Acompanhamento real em relação às metas do ciclo.</p>
           </div>
 
           <div className="space-y-8">
@@ -111,15 +111,15 @@ const ColaboradorDashboardPage: React.FC = () => {
 
         {/* Bloco de Elegibilidade */}
         <section
-          className={`rounded-2xl p-6 border transition-all ${
+          className={`rounded-[2rem] p-6 border transition-all ${
             carreira.isElegivel
-              ? 'bg-emerald-50 border-emerald-200 text-emerald-700 shadow-sm shadow-emerald-100'
-              : 'bg-amber-50 border-amber-200 text-amber-700 shadow-sm shadow-amber-100'
+              ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400 shadow-lg shadow-emerald-500/5'
+              : 'bg-amber-500/10 border-amber-500/20 text-amber-400 shadow-lg shadow-amber-500/5'
           }`}
         >
           <div className="flex items-center gap-3">
             {carreira.isElegivel ? <ShieldCheck size={20} /> : <TrendingUp size={20} />}
-            <p className="text-sm font-black uppercase tracking-tight">Status de Carreira</p>
+            <p className="text-sm font-black uppercase tracking-wider">Status de Carreira</p>
           </div>
           <p className="text-sm mt-2 leading-relaxed font-medium">
             {carreira.mensagem}

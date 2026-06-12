@@ -19,7 +19,7 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
   orgInfo = '—',
 }) => {
   return (
-    <div className="bg-white rounded-3xl p-8 border border-slate-200 shadow-sm space-y-6">
+    <div className="glass-card p-8 border border-slate-800/80 space-y-6 text-left">
       <div className="flex flex-col items-center text-center space-y-4">
         {/* Foto de Perfil */}
         <div className="relative">
@@ -29,42 +29,42 @@ export const ProfileCard: React.FC<ProfileCardProps> = ({
             onError={(e) => {
               e.currentTarget.src = FALLBACK_AVATAR;
             }}
-            className="w-24 h-24 rounded-3xl object-cover border-4 border-slate-50 shadow-md"
+            className="w-24 h-24 rounded-3xl object-cover border-4 border-slate-800 shadow-md"
           />
 
           {/* Indicador de status */}
           <span
             aria-label="Usuário ativo"
             title="Usuário ativo"
-            className="absolute -bottom-1 -right-1 w-6 h-6 bg-emerald-500 border-4 border-white rounded-full"
+            className="absolute -bottom-1 -right-1 w-6 h-6 bg-emerald-500 border-4 border-[#090D1A] rounded-full"
           />
         </div>
 
         <div>
-          <h2 className="text-xl font-black text-slate-800 tracking-tight">
+          <h2 className="text-xl font-black text-slate-200 tracking-tight">
             {name}
           </h2>
-          <p className="text-xs font-bold text-indigo-600 uppercase tracking-wider mt-1">
+          <p className="text-xs font-bold text-indigo-400 uppercase tracking-wider mt-1">
             {role}
           </p>
         </div>
       </div>
 
-      <div className="space-y-4 pt-4 border-t border-slate-100">
+      <div className="space-y-4 pt-4 border-t border-slate-800/60">
         <div className="flex flex-col">
-          <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+          <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
             Localização
           </span>
-          <span className="text-sm font-bold text-slate-700">
+          <span className="text-sm font-bold text-slate-300">
             {location}
           </span>
         </div>
 
         <div className="flex flex-col">
-          <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+          <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">
             Informação Organizacional
           </span>
-          <span className="text-xs font-medium text-slate-500 leading-relaxed">
+          <span className="text-xs font-medium text-slate-400 leading-relaxed">
             {orgInfo}
           </span>
         </div>

@@ -39,20 +39,20 @@ export const GestorDashboardPage: React.FC = () => {
   ];
 
   return (
-    <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500">
+    <div className="max-w-7xl mx-auto space-y-8 animate-in fade-in duration-500 text-left">
       {/* Cabeçalho Contextual */}
       <header className="flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-black text-slate-800 tracking-tight">
+          <h1 className="text-3xl font-black text-white tracking-tight">
             Dashboard de Gestão
           </h1>
-          <p className="text-sm text-slate-500 mt-1">
-            Gestor: <span className="font-bold text-slate-700">{user?.nome}</span> • Acompanhamento de Performance 2026
+          <p className="text-sm text-slate-400 font-medium mt-1">
+            Gestor: <span className="font-bold text-slate-200">{user?.nome}</span> • Acompanhamento de Performance 2026
           </p>
         </div>
         <div className="flex gap-2">
-           <div className="px-3 py-1 bg-indigo-50 text-indigo-600 rounded-lg text-[10px] font-black uppercase tracking-wider border border-indigo-100">
-             Ciclo Atual: 1T2026
+           <div className="px-3 py-1 bg-indigo-500/10 text-indigo-400 rounded-lg text-[10px] font-black uppercase tracking-wider border border-indigo-500/20">
+             Ciclo: 1T2026
            </div>
         </div>
       </header>
@@ -85,12 +85,12 @@ export const GestorDashboardPage: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Status dos Avaliadores (Filtro de Processo) */}
-        <section className="bg-white border border-slate-200 rounded-[2rem] p-8 space-y-6 shadow-sm flex flex-col">
+        <section className="glass-card p-8 space-y-6 border border-slate-800/80 flex flex-col">
           <div className="flex items-center justify-between">
             <h2 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">
               Progresso do Ciclo
             </h2>
-            <span className="text-[10px] font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded">Avaliadores</span>
+            <span className="text-[10px] font-bold text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded border border-indigo-500/20">Avaliadores</span>
           </div>
 
           <div className="space-y-4 flex-1">
@@ -106,14 +106,14 @@ export const GestorDashboardPage: React.FC = () => {
             ))}
           </div>
           
-          <button className="w-full py-3 text-xs font-black uppercase tracking-widest text-slate-400 hover:text-indigo-600 border-t border-slate-50 mt-4 transition-colors">
+          <button className="w-full py-3 text-xs font-black uppercase tracking-widest text-slate-400 hover:text-indigo-400 border-t border-slate-800/60 mt-4 transition-colors">
             Cobrar Pendências
           </button>
         </section>
 
         {/* Heatmap de Competências da Equipe */}
-        <section className="lg:col-span-2 bg-white border border-slate-200 rounded-[2rem] overflow-hidden shadow-sm flex flex-col">
-          <div className="px-8 py-6 border-b border-slate-100 bg-slate-50/30 flex items-center justify-between">
+        <section className="lg:col-span-2 glass-card overflow-hidden border border-slate-800/80 flex flex-col">
+          <div className="px-8 py-6 border-b border-slate-800/60 bg-slate-900/40 flex items-center justify-between">
             <h2 className="text-xs font-black text-slate-400 uppercase tracking-[0.2em]">
               Gap de Competências (Média Equipe)
             </h2>
@@ -123,9 +123,9 @@ export const GestorDashboardPage: React.FC = () => {
             </div>
           </div>
 
-          <div className="divide-y divide-slate-100">
+          <div className="divide-y divide-slate-800/60">
             {competenciasEquipe.map((comp) => (
-              <div key={comp.label} className="hover:bg-slate-50/50 transition-colors">
+              <div key={comp.label} className="hover:bg-[#131A2C]/40 transition-colors">
                 <CompetenciaRow
                   label={comp.label}
                   weight={comp.weight}
@@ -137,8 +137,8 @@ export const GestorDashboardPage: React.FC = () => {
             ))}
           </div>
           
-          <div className="p-6 bg-slate-50 border-t border-slate-100">
-             <p className="text-[10px] text-slate-400 leading-relaxed italic">
+          <div className="p-6 bg-slate-900/40 border-t border-slate-800/60">
+             <p className="text-[10px] text-slate-500 leading-relaxed italic">
                * Os valores acima representam a média aritmética de todos os liderados diretos no ciclo atual.
              </p>
           </div>
