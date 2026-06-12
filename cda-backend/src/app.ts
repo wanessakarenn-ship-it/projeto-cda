@@ -26,15 +26,29 @@ const app = express();
 // Middlewares globais
 // ====================
 
-// Configuração de CORS: Essencial para integração com o Vite/React
+// Configuração de CORS Dinâmica para suportar locais e deploys Vercel
 app.use(
   cors({
-    origin: [
-      'http://localhost:3000',
-      'http://localhost:5173',
-      'http://localhost:4173',
-      'https://seu-dominio-producao.com', // Adicione quando fizer deploy
-    ],
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      
+      const allowedOrigins = [
+        'http://localhost:3000',
+        'http://localhost:5173',
+        'http://localhost:4173',
+        'https://projeto-cda-8e36.vercel.app'
+      ];
+      
+      const isAllowed = allowedOrigins.includes(origin) || 
+                        origin.endsWith('.vercel.app') || 
+                        /https:\/\/projeto-cda.*\.vercel\.app/.test(origin);
+      
+      if (isAllowed) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
