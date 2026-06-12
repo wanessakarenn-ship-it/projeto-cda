@@ -7,7 +7,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 // ✅ Import correto (NodeNext / ESM)
-import { pool } from '../config/db.js';
+import { pool } from '../config/db';
 
 const {
   DB_HOST,

@@ -8,7 +8,7 @@ dotenv.config();
 
 // ✅ IMPORT CORRETO (NodeNext / ESM)
 // ⚠️ db.ts deve exportar `pool`
-import { pool } from '../config/db.js';
+import { pool } from '../config/db';
 
 const tables: string[] = [
   'perfil',
